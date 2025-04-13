@@ -1,26 +1,385 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  
+  /* Game theme colors */
+  --game-primary: 92, 33, 214;
+  --game-secondary: 0, 112, 243;
+  --game-accent: 255, 70, 199;
+  --game-dark: 21, 11, 43;
+  --game-light: 230, 230, 250;
+  --game-orange: 255, 145, 44;
+  --game-blue: 0, 186, 255;
+  --game-red: 255, 53, 91;
+  --game-green: 57, 230, 115;
+  --game-yellow: 255, 214, 0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-press-start-2p);
+  --font-mono: var(--font-vt323);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    /* Removed @apply font-pixel-secondary; */
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'VT323', 'PixelFontSecondary', sans-serif;
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  }
+  
+  /* Pixel Fonts */
+  @font-face {
+    font-family: 'PixelFont';
+    src: url('/fonts/pixel-font.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  
+  @font-face {
+    font-family: 'PixelFontSecondary';
+    src: url('/fonts/pixel-font-secondary.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@layer components {
+  /* Pixel styling components */
+  .font-pixel {
+    font-family: 'Press Start 2P', 'PixelFont', monospace;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  
+  .font-pixel-secondary {
+    font-family: 'VT323', 'PixelFontSecondary', sans-serif;
+    letter-spacing: 0.3px;
+  }
+  
+  .pixel-text-shadow {
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  }
+  
+  .pixel-container {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    border: 2px solid #000;
+    padding: 15px;
+    position: relative;
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.5);
+  }
+  
+  .pixel-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+  }
+  
+  .pixel-borders {
+    position: relative;
+    border: 4px solid #000;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  }
+  
+  .pixel-borders::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background-image:
+      linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%),
+      linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+    mask-image: linear-gradient(to bottom, transparent 25%, rgba(0, 0, 0, 0.8) 100%);
+    opacity: 0.1;
+    pointer-events: none;
+  }
+  
+  .pixel-borders-top {
+    border-top: 4px solid rgba(0, 0, 0, 0.8);
+    position: relative;
+  }
+  
+  .pixel-grid {
+    position: relative;
+  }
+  
+  .pixel-grid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 8px 8px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* New pattern for cards */
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 8px 8px;
+    image-rendering: pixelated;
+  }
+
+  /* Glowing effect for card elements */
+  .shadow-glow {
+    box-shadow: 0 0 8px rgba(255,255,255,0.2);
+  }
+
+  /* Color overlay effects for cards */
+  .bg-game-blue\/60 {
+    background: linear-gradient(to bottom, rgba(0, 186, 255, 0.4), rgba(0, 128, 255, 0.2));
+    border-left: 2px solid rgba(0, 186, 255, 0.7);
+    border-top: 2px solid rgba(0, 186, 255, 0.7); 
+  }
+  
+  .bg-game-accent\/60 {
+    background: linear-gradient(to bottom, rgba(255, 70, 199, 0.4), rgba(200, 40, 150, 0.2));
+    border-left: 2px solid rgba(255, 70, 199, 0.7);
+    border-top: 2px solid rgba(255, 70, 199, 0.7);
+  }
+  
+  .bg-game-orange\/60 {
+    background: linear-gradient(to bottom, rgba(255, 145, 44, 0.4), rgba(200, 90, 30, 0.2));
+    border-left: 2px solid rgba(255, 145, 44, 0.7);
+    border-top: 2px solid rgba(255, 145, 44, 0.7);
+  }
+  
+  .bg-game-red\/60 {
+    background: linear-gradient(to bottom, rgba(255, 53, 91, 0.4), rgba(200, 40, 70, 0.2));
+    border-left: 2px solid rgba(255, 53, 91, 0.7);
+    border-top: 2px solid rgba(255, 53, 91, 0.7);
+  }
+
+  .pixel-button {
+    font-family: 'Press Start 2P', 'PixelFont', monospace;
+    font-size: 0.75rem; /* text-xs */
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    position: relative;
+    transition-property: all;
+    transition-duration: 100ms;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+    image-rendering: pixelated;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transform-style: preserve-3d;
+    border-radius: 2px;
+  }
+
+  .pixel-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, 
+                              rgba(255, 255, 255, 0.2) 0%, 
+                              rgba(255, 255, 255, 0.05) 50%, 
+                              rgba(0, 0, 0, 0.05) 51%, 
+                              rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 0.375rem;
+  }
+  
+  .pixel-button:hover {
+    filter: brightness(1.05);
+  }
+  
+  .pixel-button:active {
+    filter: brightness(0.95);
+  }
+  
+  /* For medium screens and up */
+  @media (min-width: 768px) {
+    .pixel-button {
+      font-size: 0.875rem; /* md:text-sm */
+    }
+  }
+  
+  .shadow-pixel {
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.9);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+  }
+
+  .shadow-pixel:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.9);
+  }
+  
+  /* Coin animation */
+  .coin {
+    width: 16px;
+    height: 16px;
+    background-color: rgb(var(--game-yellow));
+    border: 2px solid #000;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+  }
+
+  .coin::before {
+    content: "$";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-family: "Press Start 2P", "PixelFont", monospace;
+    font-size: 10px;
+    color: #000;
+  }
+
+  /* New arcade-style components */
+  .arcade-screen {
+    /* Replaced @apply border-8 border-gray-800 bg-black/80 p-4 rounded; */
+    border: 8px solid #1f2937; /* border-8 border-gray-800 */
+    background-color: rgba(0, 0, 0, 0.8); /* bg-black/80 */
+    padding: 1rem; /* p-4 */
+    border-radius: 0.25rem; /* rounded */
+    box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.2);
+  }
+  
+  .arcade-scanline {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .arcade-scanline::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+/* Game color theme for Tailwind */
+@layer utilities {
+  .bg-game-primary {
+    background-color: rgb(var(--game-primary));
+  }
+  .bg-game-secondary {
+    background-color: rgb(var(--game-secondary));
+  }
+  .bg-game-accent {
+    background-color: rgb(var(--game-accent));
+  }
+  .bg-game-dark {
+    background-color: rgb(var(--game-dark));
+  }
+  .bg-game-light {
+    background-color: rgb(var(--game-light));
+  }
+  .bg-game-orange {
+    background-color: rgb(var(--game-orange));
+  }
+  .bg-game-blue {
+    background-color: rgb(var(--game-blue));
+  }
+  .bg-game-red {
+    background-color: rgb(var(--game-red));
+  }
+  .bg-game-green {
+    background-color: rgb(var(--game-green));
+  }
+  .bg-game-yellow {
+    background-color: rgb(var(--game-yellow));
+  }
+  
+  .text-game-primary {
+    color: rgb(var(--game-primary));
+  }
+  .text-game-secondary {
+    color: rgb(var(--game-secondary));
+  }
+  .text-game-accent {
+    color: rgb(var(--game-accent));
+  }
+  .text-game-dark {
+    color: rgb(var(--game-dark));
+  }
+  .text-game-light {
+    color: rgb(var(--game-light));
+  }
+  .text-game-orange {
+    color: rgb(var(--game-orange));
+  }
+  .text-game-blue {
+    color: rgb(var(--game-blue));
+  }
+  .text-game-red {
+    color: rgb(var(--game-red));
+  }
+  .text-game-green {
+    color: rgb(var(--game-green));
+  }
+  .text-game-yellow {
+    color: rgb(var(--game-yellow));
+  }
+  
+  .border-game-primary {
+    border-color: rgb(var(--game-primary));
+  }
+  .border-game-secondary {
+    border-color: rgb(var(--game-secondary));
+  }
+  .border-game-accent {
+    border-color: rgb(var(--game-accent));
+  }
 }
