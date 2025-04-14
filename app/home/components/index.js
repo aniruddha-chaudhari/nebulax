@@ -1,0 +1,10 @@
+// Export all components from the home/components directory
+export { default as Starfield } from './Starfield';
+export { default as ScanLines } from './ScanLines';
+export { default as Marquee } from './Marquee';
+export { default as RetroMap } from './RetroMap';
+export { default as TabButton } from './TabButton';
+export { default as PlayerHub } from './PlayerHub';
+export { default as AchievementsList } from './AchievementsList';
+export { default as GameGrid } from './GameGrid';
+export { default as TickerBar } from './TickerBar';

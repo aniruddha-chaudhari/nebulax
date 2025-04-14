@@ -30,9 +30,10 @@ const LevelCard = ({
   // Determine the correct link path based on the game name
   const getLinkPath = () => {
     // Use a case-insensitive comparison with trim to handle potential whitespace issues
-    if (name && name.trim().toLowerCase() === "fool's gambit".toLowerCase()) {
-      console.log(`Routing to /home/foolsgambit for ${name}`);
-      return "/home/foolsgambit";
+    if (name && (name.trim().toLowerCase() === "battledeck".toLowerCase() || 
+                 name.trim().toLowerCase() === "battle deck".toLowerCase())) {
+      console.log(`Routing to /home/battledeck for ${name}`);
+      return "/home/battledeck";
     }
     console.log(`Routing to /level/${id} for ${name}`);
     return `/level/${id}`;
