@@ -11,7 +11,7 @@ import { cn } from '@/app/lib/utils';
  */
 
 /**
- * PixelButton component with retro pixel styling
+ * Enhanced PixelButton component with retro pixel styling and 3D effects
  * 
  * @param {PixelButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>} props
  * @returns {JSX.Element}
@@ -77,22 +77,22 @@ const PixelButton = ({
 
   // Updated border styles for 3D effect
   const variantBorderStyles = {
-    solid: 'border-t-2 border-l-2 border-r-2 border-b-6 border-black',
-    outline: 'border-t-1 border-l-1 border-r-1 border-b-4',
+    solid: 'border-t-2 border-l-2 border-r-2 border-b-4 border-black',
+    outline: 'border-t-1 border-l-1 border-r-1 border-b-2',
     ghost: '',
   };
 
   // Updated shadow styles for 3D effect
   const shadowStyles = {
-    solid: 'shadow-[0_6px_0_0_rgba(0,0,0,0.5)] hover:shadow-[0_4px_0_0_rgba(0,0,0,0.5)] active:shadow-[0_0px_0_0_rgba(0,0,0,0.5)]',
-    outline: 'shadow-[0_4px_0_0_rgba(0,0,0,0.2)] hover:shadow-[0_2px_0_0_rgba(0,0,0,0.2)] active:shadow-none',
+    solid: 'shadow-[0_4px_0_0_rgba(0,0,0,0.5)] hover:shadow-[0_2px_0_0_rgba(0,0,0,0.5)] active:shadow-none',
+    outline: 'shadow-[0_2px_0_0_rgba(0,0,0,0.2)] hover:shadow-[0_1px_0_0_rgba(0,0,0,0.2)] active:shadow-none',
     ghost: '',
   };
 
   // Transform styles for press animation
   const transformStyles = {
-    solid: 'hover:translate-y-1 active:translate-y-[6px] transition-all duration-100',
-    outline: 'hover:translate-y-1 active:translate-y-4 transition-all duration-100',
+    solid: 'hover:translate-y-1 active:translate-y-[4px] transition-all duration-100',
+    outline: 'hover:translate-y-1 active:translate-y-2 transition-all duration-100',
     ghost: '',
   };
 

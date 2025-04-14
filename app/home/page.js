@@ -22,7 +22,8 @@ import {
   MapPin,
   Compass,
   Trophy,
-  Users
+  Users,
+  Coins  // Add Coins icon import
 } from 'lucide-react';
 
 // Updated game data
@@ -88,38 +89,48 @@ const ACHIEVEMENTS = [
 
 // New component: Starfield background
 const Starfield = () => {
+  const [stars, setStars] = useState([]);
+  
+  // Move star generation to useEffect to only run on client-side
+  useEffect(() => {
+    const starArray = Array.from({ length: 50 }).map((_, i) => {
+      return {
+        id: i,
+        size: Math.random() * 3 + 1,
+        animationDuration: Math.random() * 10 + 20,
+        left: Math.random() * 100,
+        animationDelay: Math.random() * 10
+      };
+    });
+    
+    setStars(starArray);
+  }, []);
+  
   return (
     <div className="fixed inset-0 z-0 overflow-hidden">
-      {Array.from({ length: 50 }).map((_, i) => {
-        const size = Math.random() * 3 + 1;
-        const animationDuration = Math.random() * 10 + 20;
-        const left = Math.random() * 100;
-        const animationDelay = Math.random() * 10;
-        
-        return (
-          <motion.div 
-            key={i}
-            className="absolute bg-white rounded-full z-0"
-            style={{ 
-              width: size, 
-              height: size, 
-              left: `${left}%`, 
-              top: '-10px', 
-            }}
-            initial={{ opacity: 0.7, y: -10 }}
-            animate={{ 
-              opacity: [0.7, 1, 0.7], 
-              y: ['0vh', '100vh'],
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: animationDuration,
-              delay: animationDelay,
-              ease: "linear" 
-            }}
-          />
-        );
-      })}
+      {stars.map((star) => (
+        <motion.div 
+          key={star.id}
+          className="absolute bg-white rounded-full z-0"
+          style={{ 
+            width: star.size, 
+            height: star.size, 
+            left: `${star.left}%`, 
+            top: '-10px', 
+          }}
+          initial={{ opacity: 0.7, y: -10 }}
+          animate={{ 
+            opacity: [0.7, 1, 0.7], 
+            y: ['0vh', '100vh'],
+          }}
+          transition={{ 
+            repeat: Infinity, 
+            duration: star.animationDuration,
+            delay: star.animationDelay,
+            ease: "linear" 
+          }}
+        />
+      ))}
     </div>
   );
 };
@@ -350,13 +361,18 @@ const RetroMap = ({ games, onSelectGame }) => {
               </div>
             </div>
             {hoveredGame.isUnlocked && (
-              <PixelButton 
-                color="accent" 
+              <motion.div
                 className="ml-auto"
-                onClick={() => onSelectGame(hoveredGame)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Play
-              </PixelButton>
+                <PixelButton 
+                  color="accent"
+                  onClick={() => onSelectGame(hoveredGame)}
+                >
+                  Play
+                </PixelButton>
+              </motion.div>
             )}
           </div>
         </motion.div>
@@ -364,12 +380,17 @@ const RetroMap = ({ games, onSelectGame }) => {
       
       <div className="absolute bottom-4 right-4 z-10">
         <div className="flex flex-col gap-2">
-          <PixelButton 
-            color="secondary"
-            onClick={() => setMapPosition({ x: 0, y: 0 })}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Map size={16} />
-          </PixelButton>
+            <PixelButton 
+              color="secondary"
+              onClick={() => setMapPosition({ x: 0, y: 0 })}
+            >
+              <Map size={16} />
+            </PixelButton>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -380,10 +401,23 @@ export default function Home() {
   const [currentTab, setCurrentTab] = useState('levels');
   const [selectedGame, setSelectedGame] = useState(null);
   const [tickerIndex, setTickerIndex] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(1000); // Default width for SSR
   
   // Total collected stars across all games
   const totalCollectedStars = GAMES.reduce((acc, game) => acc + game.starsCollected, 0);
   const totalStars = GAMES.reduce((acc, game) => acc + game.totalStars, 0);
+  
+  // Set window width after component mounts (client-side only)
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Effect for rotating ticker content
   useEffect(() => {
@@ -399,43 +433,6 @@ export default function Home() {
     setSelectedGame(game);
     // Can be extended to navigate to the game
     console.log(`Selected game: ${game.name}`);
-  };
-  
-  const PlayerStats = () => {
-    const stats = [
-      { icon: <Sword size={16} />, name: 'Attack', value: 24, color: 'bg-game-red' },
-      { icon: <Shield size={16} />, name: 'Defense', value: 18, color: 'bg-game-blue' },
-      { icon: <Zap size={16} />, name: 'Speed', value: 30, color: 'bg-game-green' },
-      { icon: <Heart size={16} />, name: 'Health', value: 80, color: 'bg-game-primary' },
-    ];
-    
-    return (
-      <motion.div
-        className="grid grid-cols-2 gap-4 mb-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {stats.map((stat, index) => (
-          <motion.div 
-            key={stat.name}
-            className="pixel-container flex items-center gap-3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className={`${stat.color} p-2 rounded-md`}>
-              {stat.icon}
-            </div>
-            <div>
-              <div className="text-xs text-white/70 font-pixel-secondary">{stat.name}</div>
-              <div className="text-lg font-pixel text-white">{stat.value}</div>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    );
   };
   
   const TabButton = ({ id, icon, active, onClick }) => (
@@ -483,7 +480,7 @@ export default function Home() {
           
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <div className="coin w-4 h-4"></div>
+              <Coins size={16} className="text-yellow-400" /> {/* Replace div.coin with Coins icon */}
               <span className="font-pixel text-white">1,250</span>
             </div>
             
@@ -534,10 +531,34 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Player stats section */}
-              <div className="mb-4">
-                <h3 className="text-lg text-white font-pixel mb-2">STATS</h3>
-                <PlayerStats />
+              {/* New profile, achievement and settings buttons */}
+              <div className="flex flex-col gap-2 mb-6">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <PixelButton color="primary" className="w-full flex items-center justify-center gap-2">
+                    <User size={16} /> Profile
+                  </PixelButton>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <PixelButton color="secondary" className="w-full flex items-center justify-center gap-2">
+                    <Trophy size={16} /> Achievements
+                  </PixelButton>
+                </motion.div>
+                
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <PixelButton color="accent" className="w-full flex items-center justify-center gap-2">
+                    <Settings size={16} /> Settings
+                  </PixelButton>
+                </motion.div>
               </div>
               
               {/* Friends section */}
@@ -579,9 +600,17 @@ export default function Home() {
                 >
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg text-white font-pixel">GAMES</h2>
-                    <PixelButton color="secondary">
-                      <Star size={14} className="mr-2" /> Featured
-                    </PixelButton>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <PixelButton color="secondary">
+                        <div className="flex items-center justify-center">
+                          <Star size={14} className="mr-1" />
+                          <span>Featured</span>
+                        </div>
+                      </PixelButton>
+                    </motion.div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -622,9 +651,16 @@ export default function Home() {
                     <Map size={18} className="text-game-yellow" />
                     WORLD MAP
                   </h2>
-                  <PixelButton color="accent">
-                    Explore
-                  </PixelButton>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <PixelButton color="accent">
+                      <div className="flex items-center justify-center">
+                        <span>Explore</span>
+                      </div>
+                    </PixelButton>
+                  </motion.div>
                 </div>
                 
                 <RetroMap games={GAMES} onSelectGame={handleSelectGame} />
@@ -646,7 +682,16 @@ export default function Home() {
                     <Trophy size={18} className="text-game-yellow" />
                     ACHIEVEMENTS
                   </h2>
-                  <PixelButton color="secondary">View All</PixelButton>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <PixelButton color="secondary">
+                      <div className="flex items-center justify-center">
+                        <span>View All</span>
+                      </div>
+                    </PixelButton>
+                  </motion.div>
                 </div>
                 
                 <div className="space-y-2">
@@ -672,80 +717,16 @@ export default function Home() {
                   ))}
                 </div>
               </motion.div>
-              
-              {/* Game Preview Section */}
-              <motion.section 
-                className="pixel-container"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <h2 className="text-lg text-white font-pixel mb-4 flex items-center gap-2">
-                  <Gamepad size={18} className="text-game-yellow" /> GAME PREVIEW
-                </h2>
-                <p className="text-white/70 font-pixel-secondary mb-4">
-                  Click on a level to start playing! Collect stars and unlock new levels as you progress.
-                </p>
-                <div className="relative w-full aspect-video bg-black/50 flex items-center justify-center arcade-scanline">
-                  <p className="text-white font-pixel animate-pulse">GAME PREVIEW</p>
-                  <Link href="/home/foolsgambit">
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <PixelButton color="accent" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <Gamepad size={16} className="mr-2" />
-                        PLAY FOOL'S GAMBIT
-                      </PixelButton>
-                    </motion.div>
-                  </Link>
-                </div>
-              </motion.section>
             </div>
           </div>
         </main>
         
-        {/* Tab Navigation */}
-        <motion.footer 
-          className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t-2 border-white/10"
-          initial={{ y: 100 }}
-          animate={{ y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="flex text-white">
-            <TabButton 
-              id="levels"
-              active={currentTab === 'levels'}
-              onClick={setCurrentTab}
-              icon={<Map size={20} className={currentTab === 'levels' ? 'text-game-accent' : 'text-white/70'} />}
-            />
-            
-            <TabButton 
-              id="inventory"
-              active={currentTab === 'inventory'}
-              onClick={setCurrentTab}
-              icon={<ScrollText size={20} className={currentTab === 'inventory' ? 'text-game-accent' : 'text-white/70'} />}
-            />
-            
-            <TabButton 
-              id="quests"
-              active={currentTab === 'quests'}
-              onClick={setCurrentTab}
-              icon={<TrendingUp size={20} className={currentTab === 'quests' ? 'text-game-accent' : 'text-white/70'} />}
-            />
-            
-            <TabButton 
-              id="shop"
-              active={currentTab === 'shop'}
-              onClick={setCurrentTab}
-              icon={<ShoppingBag size={20} className={currentTab === 'shop' ? 'text-game-accent' : 'text-white/70'} />}
-            />
-          </div>
-        </motion.footer>
-        
         {/* Ticker at bottom */}
-        <div className="fixed bottom-10 left-0 right-0 bg-black/80 h-8 flex items-center z-20">
+        <div className="fixed bottom-0 left-0 right-0 bg-black/80 h-8 flex items-center z-20">
           <div className="w-full overflow-hidden">
             <motion.div
               className="flex items-center px-4 text-white font-pixel whitespace-nowrap"
-              animate={{ x: [-1000, window.innerWidth] }}
+              animate={{ x: [-1000, windowWidth] }} 
               transition={{ 
                 repeat: Infinity, 
                 duration: 20, 

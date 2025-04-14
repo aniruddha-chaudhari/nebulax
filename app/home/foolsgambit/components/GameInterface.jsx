@@ -276,39 +276,6 @@ const GameInterface = ({ playerName }) => {
         <GameBoard boardState={gameState.boardState?.tiles || []} />
       </div>
 
-      {/* Player stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <PlayerStats 
-          player={{
-            name: currentPlayer.name,
-            persona: currentPlayer.persona,
-            pp: currentPlayer.pp,
-            fp: currentPlayer.fp,
-            deckSize: currentPlayer.deckSize,
-            discardSize: currentPlayer.discardSize,
-            handSize: currentPlayer.handSize,
-            mysteries: currentPlayer.mysteries
-          }}
-          isCurrentPlayer={isPlayerTurn} 
-          isHuman={true} 
-        />
-        
-        <PlayerStats 
-          player={{
-            name: opponent.name,
-            persona: opponent.persona,
-            pp: opponent.pp,
-            fp: opponent.fp,
-            deckSize: opponent.deckSize,
-            discardSize: opponent.discardSize,
-            handSize: opponent.handSize,
-            mysteries: opponent.mysteries
-          }} 
-          isCurrentPlayer={!isPlayerTurn}
-          isHuman={false}
-        />
-      </div>
-
       {/* Opponent mysteries area */}
       {opponent.mysteries > 0 && (
         <div className="mb-6">

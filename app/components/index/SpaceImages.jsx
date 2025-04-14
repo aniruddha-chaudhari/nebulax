@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -456,6 +456,31 @@ export const FallingStarImage = ({ className = "", ...props }) => (
 
 // Default component that combines multiple images
 const SpaceImages = () => {
+  // Add state for orbiting asteroids
+  const [orbitingAsteroids, setOrbitingAsteroids] = useState([]);
+
+  // Calculate orbiting asteroid positions client-side
+  useEffect(() => {
+    const asteroids = [...Array(5)].map((_, i) => {
+      const angle = (i * (360 / 5)) + 45;
+      const radius = 40 + (i * 5);
+      const x = radius * Math.cos((angle * Math.PI) / 180);
+      const y = radius * Math.sin((angle * Math.PI) / 180);
+      const componentType = i % 3; // 0, 1, or 2
+      
+      return {
+        id: `orbit-${i}`,
+        x,
+        y,
+        scale: 0.3 + (i * 0.1),
+        componentType,
+        duration: 15 + (i * 5)
+      };
+    });
+    
+    setOrbitingAsteroids(asteroids);
+  }, []);
+
   return (
     <>
       {/* Original space elements */}
@@ -510,30 +535,29 @@ const SpaceImages = () => {
         />
       </motion.div>
 
-      {/* Orbiting asteroids around a central point */}
+      {/* Orbiting asteroids around a central point - client-side only */}
       <div className="absolute top-[70%] left-[20%] z-10">
-        {[...Array(5)].map((_, i) => {
-          const angle = (i * (360 / 5)) + 45;
-          const radius = 40 + (i * 5);
-          const x = radius * Math.cos((angle * Math.PI) / 180);
-          const y = radius * Math.sin((angle * Math.PI) / 180);
-          const AstComponent = i % 3 === 0 ? AsteroidImage : i % 3 === 1 ? Asteroid2Image : Asteroid3Image;
+        {orbitingAsteroids.map((asteroid) => {
+          const AstComponent = 
+            asteroid.componentType === 0 ? AsteroidImage : 
+            asteroid.componentType === 1 ? Asteroid2Image : 
+            Asteroid3Image;
           
           return (
             <motion.div 
-              key={`orbit-${i}`}
+              key={asteroid.id}
               className="absolute"
               style={{ 
-                x, 
-                y,
-                scale: 0.3 + (i * 0.1)
+                x: asteroid.x, 
+                y: asteroid.y,
+                scale: asteroid.scale
               }}
               animate={{ 
                 rotate: [0, 360],
               }}
               transition={{ 
                 rotate: { 
-                  duration: 15 + (i * 5), 
+                  duration: asteroid.duration, 
                   repeat: Infinity, 
                   ease: "linear" 
                 }
