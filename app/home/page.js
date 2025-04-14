@@ -33,7 +33,8 @@ const GAMES = [
     name: "Fool's Gambit",
     starsCollected: 2,
     totalStars: 3,
-    imageUrl: "/foolsgambit/foolsgambit.png"
+    imageUrl: "/foolsgambit/foolsgambit.png",
+    category: "Strategy",
   },
   {
     id: 2,
@@ -501,31 +502,39 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Sidebar - Player Info */}
             <motion.aside 
-              className="md:col-span-3 pixel-container bg-game-dark/90"
+              className="md:col-span-3 pixel-container bg-gray-400/10"
               initial={{ x: -50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
               <h2 className="font-pixel text-white text-xl mb-4">PLAYER HUB</h2>
               
-              <div className="flex flex-col items-center mb-4">
-                <div className="w-20 h-20 bg-game-secondary rounded-lg pixel-borders flex items-center justify-center">
-                  <User size={36} className="text-white" />
+              <div className="flex flex-col items-center mb-4 relative">
+                {/* Glow effect behind the profile */}
+                <div className="absolute inset-0 bg-gradient-to-b from-game-primary/20 via-game-accent/10 to-transparent rounded-lg transform -translate-y-2 blur-md"></div>
+                
+                {/* Profile container with layered effects */}
+                <div className="w-20 h-20 bg-gradient-to-br from-game-primary via-game-secondary to-game-accent rounded-lg pixel-borders-lg flex items-center justify-center transform hover:scale-105 transition-transform relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-800/80 to-white"></div>
+                  <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+                  <User size={36} className="text-white relative z-10" />
                 </div>
-                <h3 className="font-pixel text-white mt-2">PLAYER_1</h3>
-                <p className="font-pixel-secondary text-game-yellow">Level 5</p>
+                <h3 className="font-pixel text-white mt-3 text-shadow-lg">PLAYER_1</h3>
+                <p className="font-pixel-secondary text-game-yellow text-shadow">Level 5</p>
               </div>
               
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                <div className="bg-game-primary/30 p-2 pixel-borders">
-                  <p className="text-white font-pixel-secondary text-xs">Stars</p>
-                  <p className="text-white font-pixel">
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-gradient-to-br from-game-primary/30 to-game-secondary/20 p-3 pixel-borders-lg relative group hover:from-game-primary/40 hover:to-game-secondary/30 transition-all">
+                  <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                  <p className="text-white font-pixel-secondary text-xs relative z-10">Stars</p>
+                  <p className="text-white font-pixel text-lg relative z-10">
                     {totalCollectedStars}/{totalStars}
                   </p>
                 </div>
-                <div className="bg-game-secondary/30 p-2 pixel-borders">
-                  <p className="text-white font-pixel-secondary text-xs">Games</p>
-                  <p className="text-white font-pixel">
+                <div className="bg-gradient-to-br from-game-secondary/30 to-game-accent/20 p-3 pixel-borders-lg relative group hover:from-game-secondary/40 hover:to-game-accent/30 transition-all">
+                  <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                  <p className="text-white font-pixel-secondary text-xs relative z-10">Games</p>
+                  <p className="text-white font-pixel text-lg relative z-10">
                     {GAMES.filter(game => game.isUnlocked).length}/{GAMES.length}
                   </p>
                 </div>
@@ -593,7 +602,7 @@ export default function Home() {
               {/* Games Section */}
               {currentTab === 'levels' && (
                 <motion.div 
-                  className="pixel-container"
+                  className="pixel-container bg-gray-400/10 relative overflow-hidden"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
@@ -641,7 +650,7 @@ export default function Home() {
               
               {/* Interactive Map Section */}
               <motion.div 
-                className="pixel-container bg-game-dark/90"
+                className="pixel-container bg-gray-400/10"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -672,7 +681,7 @@ export default function Home() {
               
               {/* Achievements Section */}
               <motion.div 
-                className="pixel-container bg-game-dark/90"
+                className="pixel-container bg-gray-400/10"
                 initial={{ x: 20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
@@ -694,24 +703,50 @@ export default function Home() {
                   </motion.div>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {ACHIEVEMENTS.map((achievement, index) => (
                     <motion.div 
                       key={achievement.id}
-                      className={`p-2 flex items-center gap-2 ${achievement.completed ? 'bg-game-primary/20' : 'bg-game-dark/50'} pixel-borders`}
+                      className={`p-3 flex items-center gap-3 ${
+                        achievement.completed 
+                          ? 'bg-gradient-to-r from-game-primary/20 to-game-secondary/20' 
+                          : 'bg-gradient-to-r from-game-dark/50 to-black/50'
+                      } pixel-borders-lg relative group hover:from-game-primary/30 hover:to-game-secondary/30 transition-all duration-300`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 + index * 0.1 }}
                     >
-                      <div className="w-8 h-8 bg-game-secondary/30 flex items-center justify-center rounded-sm">
-                        {achievement.icon}
+                      {/* Background effects */}
+                      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+                      <div className={`absolute inset-0 bg-gradient-to-r ${
+                        achievement.completed 
+                          ? 'from-game-yellow/5 to-transparent' 
+                          : 'from-white/5 to-transparent'
+                      } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      
+                      {/* Icon container with glow */}
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center relative ${
+                        achievement.completed 
+                          ? 'bg-gradient-to-br from-game-primary/40 to-game-secondary/40' 
+                          : 'bg-gradient-to-br from-gray-800/40 to-gray-900/40'
+                      }`}>
+                        <div className="text-xl">{achievement.icon}</div>
+                        {achievement.completed && (
+                          <div className="absolute inset-0 bg-game-yellow/10 rounded-lg animate-pulse"></div>
+                        )}
                       </div>
-                      <div>
-                        <p className="text-white font-pixel text-sm">{achievement.name}</p>
+                      
+                      {/* Achievement info */}
+                      <div className="flex-1">
+                        <p className={`font-pixel text-sm ${
+                          achievement.completed ? 'text-white' : 'text-white/70'
+                        }`}>{achievement.name}</p>
                         <p className="text-white/60 font-pixel-secondary text-xs">{achievement.description}</p>
                       </div>
+                      
+                      {/* Completion indicator */}
                       {achievement.completed && (
-                        <div className="ml-auto text-game-yellow">✓</div>
+                        <div className="ml-auto text-game-yellow drop-shadow-glow">✓</div>
                       )}
                     </motion.div>
                   ))}

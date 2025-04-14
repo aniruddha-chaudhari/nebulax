@@ -25,7 +25,7 @@ const LevelCard = ({
 }) => {
   
   // Default placeholder image for levels
-  const defaultImage = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop";
+  const defaultImage = "/nebula.png";
 
   // Determine the correct link path based on the game name
   const getLinkPath = () => {
@@ -48,39 +48,48 @@ const LevelCard = ({
   return (
     <div 
       className={cn(
-        "relative w-full aspect-video max-w-[300px] pixel-borders overflow-hidden transition-all duration-300",
+        "relative w-full aspect-video max-w-[300px] pixel-borders-lg overflow-hidden transition-all duration-300 group",
         isUnlocked ? "hover:scale-105" : "opacity-70"
       )}
     >
-      {/* Level image */}
-      <img 
-        src={imageUrl || defaultImage} 
-        alt={`Level ${id}`} 
-        className={cn(
-          "object-cover w-full h-full brightness-75",
-          !isUnlocked && "filter grayscale"
-        )}
-      />
+      {/* Layered background effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-game-primary/10 via-game-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
       
-      {/* Locked overlay */}
+      {/* Level image with gradient overlay */}
+      <div className="relative w-full h-full">
+        <img 
+          src={imageUrl || defaultImage} 
+          alt={`Level ${id}`} 
+          className={cn(
+            "object-cover w-full h-full brightness-75 transition-all duration-300",
+            !isUnlocked && "filter grayscale",
+            "group-hover:brightness-90"
+          )}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+      </div>
+      
+      {/* Locked overlay with animation */}
       {!isUnlocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <Lock size={40} className="text-white animate-pulse" />
         </div>
       )}
       
-      {/* Level info */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 bg-game-dark/80">
-        <h3 className="font-pixel text-sm text-white mb-1">Level {id}: {name}</h3>
+      {/* Level info with enhanced depth */}
+      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-game-dark via-game-dark/90 to-transparent">
+        <h3 className="font-pixel text-sm text-white mb-2">Level {id}: {name}</h3>
         
-        {/* Stars collected */}
+        {/* Stars collected with glow effect */}
         <div className="flex items-center gap-1">
           {Array.from({ length: totalStars }).map((_, index) => (
             <Star 
               key={index} 
               size={12}
               className={cn(
-                index < starsCollected ? "text-game-yellow fill-game-yellow" : "text-gray-400"
+                index < starsCollected ? "text-game-yellow fill-game-yellow drop-shadow-glow" : "text-gray-400",
+                "transition-all duration-300"
               )}
             />
           ))}
@@ -91,13 +100,12 @@ const LevelCard = ({
       {isUnlocked && (
         <Link 
           href={linkPath} 
-          className="absolute inset-0 z-10 text-transparent hover:bg-white/10"
+          className="absolute inset-0 z-10 text-transparent hover:bg-white/5"
           aria-label={`Play Level ${id}: ${name}`}
           prefetch={true}
           onClick={() => console.log(`Clicked on ${name}, navigating to ${linkPath}`)}
         >
           <span className="sr-only">{name}</span>
-          <div className="absolute inset-0"></div>
         </Link>
       )}
     </div>
