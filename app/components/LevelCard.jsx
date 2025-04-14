@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { cn } from '@/app/lib/utils';
 import Link from 'next/link';
 import { Star, Lock } from 'lucide-react';
@@ -27,6 +27,24 @@ const LevelCard = ({
   // Default placeholder image for levels
   const defaultImage = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop";
 
+  // Determine the correct link path based on the game name
+  const getLinkPath = () => {
+    // Use a case-insensitive comparison with trim to handle potential whitespace issues
+    if (name && name.trim().toLowerCase() === "fool's gambit".toLowerCase()) {
+      console.log(`Routing to /home/foolsgambit for ${name}`);
+      return "/home/foolsgambit";
+    }
+    console.log(`Routing to /level/${id} for ${name}`);
+    return `/level/${id}`;
+  };
+  
+  // Log the game name for debugging purposes
+  useEffect(() => {
+    console.log(`LevelCard rendered for: "${name}"`);
+  }, [name]);
+
+  const linkPath = getLinkPath();
+  
   return (
     <div 
       className={cn(
@@ -72,11 +90,14 @@ const LevelCard = ({
       {/* Clickable link if unlocked */}
       {isUnlocked && (
         <Link 
-          href={`/level/${id}`} 
-          className="absolute inset-0 z-10 text-transparent"
+          href={linkPath} 
+          className="absolute inset-0 z-10 text-transparent hover:bg-white/10"
           aria-label={`Play Level ${id}: ${name}`}
+          prefetch={true}
+          onClick={() => console.log(`Clicked on ${name}, navigating to ${linkPath}`)}
         >
-          {name}
+          <span className="sr-only">{name}</span>
+          <div className="absolute inset-0"></div>
         </Link>
       )}
     </div>

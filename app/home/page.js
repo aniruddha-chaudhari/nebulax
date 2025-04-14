@@ -24,10 +24,10 @@ import {
 const GAMES = [
   {
     id: 1,
-    name: "Forest Adventure",
+    name: "Fool's Gambit",
     starsCollected: 2,
     totalStars: 3,
-    imageUrl: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=600&h=400&fit=crop"
+    imageUrl: "/foolsgambit/foolsgambit.png"
   },
   {
     id: 2,
