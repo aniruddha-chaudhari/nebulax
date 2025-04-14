@@ -30,14 +30,9 @@ const GAMES = [
   {
     id: 1,
     name: "Fool's Gambit",
-    description: "A strategic deck-building game with real-time matches",
-    category: "Card",
-    isUnlocked: true,
     starsCollected: 2,
     totalStars: 3,
-    imageUrl: "/foolsgambit/foolsgambit.png",
-    mapX: 30,
-    mapY: 20
+    imageUrl: "/foolsgambit/foolsgambit.png"
   },
   {
     id: 2,
