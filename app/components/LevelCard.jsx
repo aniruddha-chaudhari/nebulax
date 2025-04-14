@@ -9,10 +9,10 @@ import { Star, Lock } from 'lucide-react';
  * @param {Object} props
  * @param {number} props.id - Level ID
  * @param {string} props.name - Level name
- * @param {boolean} props.isUnlocked - Whether the level is unlocked and playable
- * @param {number} [props.starsCollected=0] - Number of stars collected in this level
- * @param {number} [props.totalStars=3] - Total stars available in this level
- * @param {string} [props.imageUrl] - URL to level image
+ * @param {boolean} props.isUnlocked 
+ * @param {number} [props.starsCollected=0] 
+ * @param {number} [props.totalStars=3]
+ * @param {string} [props.imageUrl]
  * @returns {JSX.Element}
  */
 const LevelCard = ({ 
@@ -34,6 +34,12 @@ const LevelCard = ({
                  name.trim().toLowerCase() === "battle deck".toLowerCase())) {
       console.log(`Routing to /home/battledeck for ${name}`);
       return "/home/battledeck";
+    }
+    // Add specific routing for WodBlitz
+    if (name && (name.trim().toLowerCase() === "wodblitz".toLowerCase() || 
+                 name.trim().toLowerCase() === "wod blitz".toLowerCase())) {
+      console.log(`Routing to /home/wodblitz for ${name}`);
+      return "/home/wodblitz";
     }
     console.log(`Routing to /level/${id} for ${name}`);
     return `/level/${id}`;

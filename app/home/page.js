@@ -5,22 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft,
-  Settings, 
-  Gamepad,
-  Sword, 
-  Shield, 
-  Zap, 
-  Heart, 
-  ScrollText, 
+  Settings,  
   Map, 
-  TrendingUp, 
-  ShoppingBag,
-  Star,
-  User,
-  MapPin,
-  Compass,
-  Trophy,
-  Users,
   Coins
 } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
@@ -44,18 +30,18 @@ const GAMES = [
     name: "Battle Deck",
     starsCollected: 2,
     totalStars: 3,
-    imageUrl: "/foolsgambit/foolsgambit.png",
+    imageUrl: "/battledeck/battldeck.png",
     category: "Strategy",
   },
   {
     id: 2,
-    name: "Cave Explorer",
-    description: "Adventure game with puzzles and hidden treasures",
-    category: "Adventure",
+    name: "WodBlitz",
+    description: "Adventure with Word puzzles",
+    category: "Memory",
     isUnlocked: true,
     starsCollected: 1,
     totalStars: 3,
-    imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=400&fit=crop",
+    imageUrl: "/wodblitz/wodblitz.png",
     mapX: 65,
     mapY: 40
   },
