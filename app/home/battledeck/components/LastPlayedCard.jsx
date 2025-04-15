@@ -9,7 +9,7 @@ const LastPlayedCard = ({ card }) => {
   
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-4 flex items-center gap-2">
         <Zap size={16} className="text-primary animate-pulse" />
         <p className="text-xs font-pixel text-white">Last Played Card</p>
       </div>

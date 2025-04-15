@@ -20,7 +20,7 @@ const LetterGridCell = ({
       data-row={rowIndex}
       data-col={colIndex}
     >
-      {letter.toUpperCase()}
+      {letter}
     </div>
   );
 };

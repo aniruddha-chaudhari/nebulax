@@ -8,6 +8,8 @@ import GameBoard from './components/GameBoard';
 import HandArea from './components/HandArea';
 import GameMenu from './components/GameMenu';
 import { Toaster } from 'sonner';
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 const BattleDeck = () => {
   // Use state to control when to render the game
@@ -26,9 +28,18 @@ const BattleDeck = () => {
         <GameProvider>
           <CRTEffect className="min-h-screen bg-background flex flex-col p-4 md:p-6">
             <header className="flex justify-between items-center mb-6">
-              <h1 className="font-pixel text-sm md:text-lg text-primary">
-                Battle Decks: Retro Arena
-              </h1>
+              <div className="flex items-center gap-3">
+                <Link 
+                  href="/home"
+                  className="flex items-center justify-center p-2 rounded-sm bg-card border border-border hover:bg-primary/20 transition-colors"
+                  aria-label="Go back"
+                >
+                  <ChevronLeft size={18} className="text-primary" />
+                </Link>
+                <h1 className="font-pixel text-sm md:text-lg text-primary">
+                  Battle Decks: Retro Arena
+                </h1>
+              </div>
               <GameMenu />
             </header>
             

@@ -121,23 +121,25 @@ const LetterGrid = ({ size, onWordSelected }) => {
         }
       }}
     >
-      <div className="grid grid-cols-10 gap-1">
-        {grid.map((row, rowIndex) =>
-          row.map((letter, colIndex) => (
-            <LetterGridCell
-              key={`${rowIndex}-${colIndex}`}
-              letter={letter}
-              rowIndex={rowIndex}
-              colIndex={colIndex}
-              isSelected={selectedCells.some(
-                cell => cell.row === rowIndex && cell.col === colIndex
-              )}
-              onMouseDown={handleMouseDown}
-              onMouseEnter={handleMouseEnter}
-              onMouseUp={handleMouseUp}
-            />
-          ))
-        )}
+      <div className="letter-grid-container">
+        <div className="grid grid-cols-10 gap-0.5">
+          {grid.map((row, rowIndex) =>
+            row.map((letter, colIndex) => (
+              <LetterGridCell
+                key={`${rowIndex}-${colIndex}`}
+                letter={letter}
+                rowIndex={rowIndex}
+                colIndex={colIndex}
+                isSelected={selectedCells.some(
+                  cell => cell.row === rowIndex && cell.col === colIndex
+                )}
+                onMouseDown={handleMouseDown}
+                onMouseEnter={handleMouseEnter}
+                onMouseUp={handleMouseUp}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

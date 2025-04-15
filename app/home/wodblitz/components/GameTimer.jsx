@@ -54,10 +54,10 @@ const GameTimer = ({ initialTime, onTimeUp, isGameActive }) => {
   };
 
   return (
-    <div className="pixel-panel w-full">
-      <h2 className="text-center font-pixel text-sm mb-1">TIME LEFT</h2>
+    <div className="pixel-panel p-1 min-w-[70px]">
+      <h2 className="text-center font-pixel text-[10px] mb-0">TIME</h2>
       <div 
-        className={`text-center font-pixel text-2xl ${isFlashing ? 'animate-flash text-retro-orange' : ''}`}
+        className={`text-center font-pixel text-base ${isFlashing ? 'animate-flash text-retro-orange' : ''}`}
       >
         {formatTime(timeLeft)}
       </div>

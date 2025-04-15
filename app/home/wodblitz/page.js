@@ -5,9 +5,9 @@ import './styles/wordgame.css';
 
 export default function WodBlitzPage() {
   return (
-    <div className="min-h-screen bg-black text-white p-4">
+    <div className="min-h-screen bg-black text-white p-0">
       <CRTEffect>
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto pt-6">
           <WordGame />
         </div>
       </CRTEffect>

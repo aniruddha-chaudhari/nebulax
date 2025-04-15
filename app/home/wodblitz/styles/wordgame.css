@@ -11,7 +11,7 @@
   border: 2px solid #2c394b;
   color: #d4f1f9;
   font-family: 'VT323', monospace;
-  font-size: 1.5rem;
+  font-size: 1.75rem; /* Reduced font size */
   font-weight: bold;
   cursor: pointer;
   user-select: none;
@@ -23,6 +23,15 @@
   background-color: rgba(42, 59, 79, 0.9);
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(87, 202, 244, 0.5);
+}
+
+/* Add grid container style */
+.letter-grid-container {
+  width: 95%;
+  max-width: 600px; /* Smaller max width */
+  margin: 0 auto;
+  transform: scale(0.92); /* Slightly smaller scale */
+  transform-origin: center center;
 }
 
 .grid-cell-selected {
@@ -39,7 +48,7 @@
   background-color: rgba(0, 0, 0, 0.7);
   border: 2px solid #6b46c1;
   border-radius: 4px;
-  padding: 15px;
+  padding: 10px; /* Reduced from 15px */
   box-shadow: 0 0 10px rgba(107, 70, 193, 0.5), 
               inset 0 0 15px rgba(107, 70, 193, 0.3);
 }
