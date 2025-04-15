@@ -1,16 +1,44 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Compass, Map } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
 
 const RetroMap = ({ games, onSelectGame }) => {
     const mapRef = useRef(null);
+    const containerRef = useRef(null);
     const [hoveredGame, setHoveredGame] = useState(null);
     const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [containerBounds, setContainerBounds] = useState({ width: 0, height: 0 });
+    const [mapBounds, setMapBounds] = useState({ width: 0, height: 0 });
+    
+    useEffect(() => {
+      if (containerRef.current && mapRef.current) {
+        const updateBounds = () => {
+          const containerRect = containerRef.current.getBoundingClientRect();
+          
+          setContainerBounds({
+            width: containerRect.width,
+            height: containerRect.height
+          });
+          
+          // For the map, we need to account for its actual content size
+          // which is why we're using a multiplier (this creates a draggable area)
+          setMapBounds({
+            width: containerRect.width * 1.5,  // Make map 50% larger than container
+            height: containerRect.height * 1.5 // Make map 50% larger than container
+          });
+        };
+        
+        updateBounds();
+        window.addEventListener('resize', updateBounds);
+        
+        return () => window.removeEventListener('resize', updateBounds);
+      }
+    }, []);
     
     const terrainTypes = [
       { id: 'grass', color: '#8FCB8F', name: 'Grassy Plains' },
@@ -49,9 +77,22 @@ const RetroMap = ({ games, onSelectGame }) => {
     
     const handleDrag = (e) => {
       if (isDragging) {
+        let newX = e.clientX - dragStart.x;
+        let newY = e.clientY - dragStart.y;
+        
+        // Calculate min values (these are negative numbers)
+        // The minimum position is how far the map can be dragged in negative direction
+        const minX = containerBounds.width - mapBounds.width;
+        const minY = containerBounds.height - mapBounds.height;
+        
+        // Constrain position within bounds
+        // Map can't go further than its right/bottom edge (0) or further than its width/height minus container size
+        newX = Math.min(0, Math.max(minX, newX));
+        newY = Math.min(0, Math.max(minY, newY));
+        
         setMapPosition({
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y
+          x: newX,
+          y: newY
         });
       }
     };
@@ -71,7 +112,10 @@ const RetroMap = ({ games, onSelectGame }) => {
     });
 
   return (
-    <div className="relative w-full aspect-video bg-game-dark/90 overflow-hidden border-4 border-black rounded-lg pixel-borders arcade-scanline">
+    <div 
+      className="relative w-full aspect-video bg-game-dark/90 overflow-hidden border-4 border-black rounded-lg pixel-borders arcade-scanline"
+      ref={containerRef}
+    >
       <div className="absolute top-2 left-2 z-10 bg-black/70 px-3 py-1 border-2 border-game-primary pixel-borders">
         <h3 className="text-white font-pixel text-sm flex items-center gap-1">
           <Compass size={14} className="text-game-yellow" /> RETRO WORLD MAP
@@ -83,7 +127,7 @@ const RetroMap = ({ games, onSelectGame }) => {
       </div>
       
       <div 
-        className="absolute w-[200%] h-[200%] bg-game-green/30 pixel-grid cursor-grab"
+        className="absolute w-[150%] h-[150%] bg-game-green/30 pixel-grid cursor-grab active:cursor-grabbing"
         style={{ 
           transform: `translate(${mapPosition.x}px, ${mapPosition.y}px)`,
           backgroundImage: `

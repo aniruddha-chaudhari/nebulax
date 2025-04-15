@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { User, Trophy, Settings, Users, Star, Gamepad } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
 
-const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends }) => {
+const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achievements }) => {
   return (
     <motion.aside 
       className="md:col-span-3 pixel-container bg-gray-400/10"
@@ -29,7 +29,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends }) =>
         <p className="font-pixel-secondary text-game-yellow text-shadow">Level 5</p>
       </div>
       
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="bg-gradient-to-br from-game-primary/30 to-game-secondary/20 p-3 pixel-borders-lg relative group hover:from-game-primary/40 hover:to-game-secondary/30 transition-all">
           <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
           
@@ -89,8 +89,8 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends }) =>
         </div>
       </div>
       
-      {/* New profile, achievement and settings buttons */}
-      <div className="flex flex-col gap-2 mb-6">
+      {/* Action buttons - Now Profile and Settings stacked */}
+      <div className="flex flex-col gap-2 mb-4">
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -104,23 +104,62 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends }) =>
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <PixelButton color="secondary" className="w-full flex items-center justify-center gap-2">
-            <Trophy size={16} /> Achievements
-          </PixelButton>
-        </motion.div>
-        
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
           <PixelButton color="accent" className="w-full flex items-center justify-center gap-2">
             <Settings size={16} /> Settings
           </PixelButton>
         </motion.div>
       </div>
       
-      {/* Friends section */}
+      {/* Achievements section */}
       <div className="mb-4">
+        <h3 className="font-pixel text-white text-lg mb-2 flex items-center gap-2">
+          <Trophy size={14} className="text-game-yellow" /> ACHIEVEMENTS
+        </h3>
+        
+        <div className="space-y-2 bg-game-dark/60 p-2 pixel-borders">
+          {achievements?.map((achievement, index) => (
+            <motion.div 
+              key={achievement.id}
+              className={`p-2 flex items-center gap-2 ${
+                achievement.completed 
+                  ? 'bg-gradient-to-r from-game-primary/20 to-game-secondary/20' 
+                  : 'bg-gradient-to-r from-game-dark/50 to-black/50'
+              } rounded-sm relative group hover:from-game-primary/30 hover:to-game-secondary/30 transition-all duration-300`}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              {/* Icon container with glow */}
+              <div className={`w-8 h-8 rounded flex items-center justify-center relative ${
+                achievement.completed 
+                  ? 'bg-gradient-to-br from-game-primary/40 to-game-secondary/40' 
+                  : 'bg-gradient-to-br from-gray-800/40 to-gray-900/40'
+              }`}>
+                <div className="text-lg">{achievement.icon}</div>
+                {achievement.completed && (
+                  <div className="absolute inset-0 bg-game-yellow/10 rounded animate-pulse"></div>
+                )}
+              </div>
+              
+              {/* Achievement info */}
+              <div className="flex-1 min-w-0">
+                <p className={`font-pixel text-xs truncate ${
+                  achievement.completed ? 'text-white' : 'text-white/70'
+                }`}>{achievement.name}</p>
+                <p className="text-white/60 font-pixel-secondary text-xs truncate">{achievement.description}</p>
+              </div>
+              
+              {/* Completion indicator */}
+              {achievement.completed && (
+                <div className="ml-auto text-game-yellow drop-shadow-glow">✓</div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Friends section */}
+      <div className="mb-1">
         <h3 className="font-pixel text-white text-lg mb-2 flex items-center gap-2">
           <Users size={14} /> FRIENDS
         </h3>

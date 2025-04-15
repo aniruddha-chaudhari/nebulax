@@ -18,7 +18,6 @@ import {
   Marquee,
   RetroMap,
   PlayerHub,
-  AchievementsList,
   GameGrid,
   TickerBar
 } from './components';
@@ -33,6 +32,7 @@ const GAMES = [
     totalStars: 3,
     imageUrl: "/battledeck/battldeck.png",
     category: "Strategy",
+    isUnlocked: true,
     mapX: 30, // Added map coordinates
     mapY: 25
   },
@@ -53,7 +53,7 @@ const GAMES = [
     name: "Skate Park Dash",
     description: "Grind rails, perform tricks, and dash through vibrant skate parks.",
     category: "Platformer",
-    isUnlocked: false,
+    isUnlocked: true,
     starsCollected: 0,
     totalStars: 3,
     imageUrl: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=600&h=400&fit=crop",
@@ -74,20 +74,24 @@ const GAMES = [
   }
 ];
 
-// Friend data
 const ONLINE_FRIENDS = [
   { id: 1, name: "PixelMaster", avatar: "👾", status: "Playing Battle Deck" },
   { id: 2, name: "RetroGamer", avatar: "🎮", status: "Online" },
-  { id: 3, name: "ArcadeKing", avatar: "👑", status: "In menu" }
+  { id: 3, name: "ArcadeKing", avatar: "👑", status: "In menu" },
+  { id: 4, name: "NeoNinja", avatar: "🥷", status: "In match" },
+  { id: 5, name: "GameWizard", avatar: "🧙‍♂️", status: "Browsing store" },
+  { id: 6, name: "CyberCat", avatar: "🐱", status: "Idle" },
 ];
+
 
 // Achievements data
 const ACHIEVEMENTS = [
   { id: 1, name: "First Victory", description: "Win your first game", icon: "🏆", completed: true },
   { id: 2, name: "Card Collector", description: "Collect 10 cards in Battle Deck", icon: "🃏", completed: true },
   { id: 3, name: "Perfect Game", description: "Win a game without taking damage", icon: "🎯", completed: false },
+  { id: 4, name: "Speed Runner", description: "Win a match in under 2 minutes", icon: "⏱️", completed: false },
+  { id: 5, name: "Combo Master", description: "Use a 5-card combo in a single match", icon: "🧠", completed: false },
 ];
-
 export default function Home() {
   const [currentTab, setCurrentTab] = useState('levels');
   const [selectedGame, setSelectedGame] = useState(null);
@@ -171,7 +175,7 @@ export default function Home() {
         {/* Marquee Announcement */}
         <Marquee text="WELCOME TO NEBULAX ARCADE - EXPLORE GAMES AND COLLECT STARS" />
         
-        <main className="px-4 pb-24">
+        <main className="px-4 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Sidebar - Player Info */}
             <PlayerHub 
@@ -179,6 +183,7 @@ export default function Home() {
               totalStars={totalStars} 
               games={GAMES}
               onlineFriends={ONLINE_FRIENDS}
+              achievements={ACHIEVEMENTS}
             />
             
             {/* Main Content Area */}
@@ -216,9 +221,6 @@ export default function Home() {
                   Drag to explore the map. Click on a location to view or play a game.
                 </p>
               </motion.div>
-              
-              {/* Achievements Section */}
-              <AchievementsList achievements={ACHIEVEMENTS} />
             </div>
           </div>
         </main>
