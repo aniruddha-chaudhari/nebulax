@@ -92,9 +92,80 @@ export const getWordsWithPrefix = (prefix) => {
   return commonWords.filter(word => word.startsWith(prefix.toLowerCase()));
 };
 
+// Get words of specific length
+export const getWordsOfLength = (length) => {
+  return commonWords.filter(word => word.length === length);
+};
+
+// Get words between min and max length
+export const getWordsByLength = (minLength, maxLength) => {
+  return commonWords.filter(word => word.length >= minLength && word.length <= maxLength);
+};
+
+// Get a set of random words for seeding the grid
+export const getRandomWordSet = (count, minLength = 3, maxLength = 7) => {
+  const appropriateWords = getWordsByLength(minLength, maxLength);
+  const shuffled = [...appropriateWords].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+// Search for all valid dictionary words in a 2D grid of letters
+export const findWordsInGrid = (grid) => {
+  // Convert grid to lowercase for comparison
+  const gridLower = grid.map(row => row.map(cell => cell.toLowerCase()));
+  
+  // Helper to check if a word can be found starting from a specific cell
+  const canPlaceWordFromCell = (row, col, word) => {
+    // Only check horizontal and vertical directions (no diagonals)
+    const directions = [
+      [0, -1], // left
+      [0, 1],  // right
+      [-1, 0], // up
+      [1, 0]   // down
+    ];
+    
+    for (const [dr, dc] of directions) {
+      let canPlace = true;
+      for (let i = 0; i < word.length; i++) {
+        const r = row + i * dr;
+        const c = col + i * dc;
+        if (r < 0 || r >= gridLower.length || c < 0 || c >= gridLower[0].length ||
+            gridLower[r][c] !== word[i]) {
+          canPlace = false;
+          break;
+        }
+      }
+      if (canPlace) return true;
+    }
+    return false;
+  };
+  
+  // Find all possible words
+  const foundWords = [];
+  for (const word of commonWords) {
+    if (word.length >= 3) { // Only consider words of length 3+
+      for (let row = 0; row < gridLower.length; row++) {
+        for (let col = 0; col < gridLower[row].length; col++) {
+          if (canPlaceWordFromCell(row, col, word)) {
+            foundWords.push(word);
+            break;
+          }
+        }
+        if (foundWords.includes(word)) break;
+      }
+    }
+  }
+  
+  return foundWords;
+};
+
 export default {
   isValidWord,
   getRandomWord,
   getWordsWithPrefix,
+  getWordsOfLength,
+  getWordsByLength,
+  getRandomWordSet,
+  findWordsInGrid,
   wordCount: commonWords.length
 };

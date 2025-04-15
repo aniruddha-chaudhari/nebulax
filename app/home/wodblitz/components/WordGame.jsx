@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import LetterGrid from './LetterGrid';
 import GameTimer from './GameTimer';
 import ScoreDisplay from './ScoreDisplay';
-import { isValidWord } from '../../../utils/dictionary';
+import { isValidWord, getWordsOfLength } from '../../../utils/dictionary';
 import { useToast } from '@/app/hooks/use-toast';
 
 const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
@@ -14,6 +14,9 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
   const [isGameActive, setIsGameActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [highScore, setHighScore] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [currentHint, setCurrentHint] = useState(null);
+  const letterGridRef = useRef(null);
   const { toast } = useToast();
 
   // Load high score from localStorage
@@ -30,6 +33,13 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
     setFoundWords([]);
     setIsGameActive(true);
     setGameOver(false);
+    setHintsUsed(0);
+    setCurrentHint(null);
+    
+    // Reset the grid to generate a new puzzle
+    if (letterGridRef.current && letterGridRef.current.resetGrid) {
+      letterGridRef.current.resetGrid();
+    }
   };
 
   // Handle game over
@@ -46,6 +56,73 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
         title: "NEW HIGH SCORE!",
         description: `You beat your previous record of ${highScore} points!`,
         duration: 5000,
+      });
+    }
+  };
+
+  // Get a hint - reveal a word that exists in the grid
+  const getHint = () => {
+    const hintPenalty = 3; // penalty for using a hint
+    const hintDuration = 5000; // duration to show hint (in milliseconds)
+    
+    if (hintsUsed >= 3) {
+      toast({
+        title: "No Hints Left",
+        description: "You've used all your hints for this game!",
+        variant: "default",
+        duration: 2000,
+      });
+      return;
+    }
+    
+    // Get words from the current grid that haven't been found yet
+    if (letterGridRef.current && letterGridRef.current.getWordsInGrid) {
+      const gridWords = letterGridRef.current.getWordsInGrid();
+      const availableWords = gridWords
+        .filter(word => !foundWords.includes(word))
+        .filter(word => word.length >= 3 && word.length <= 4); // Short words make better hints
+      
+      if (availableWords.length === 0) {
+        toast({
+          title: "No Hints Available",
+          description: "You've found all the hint-eligible words!",
+          variant: "default",
+          duration: 2000,
+        });
+        return;
+      }
+      
+      // Apply hint penalty
+      setScore(prev => Math.max(0, prev - hintPenalty));
+      setHintsUsed(prev => prev + 1);
+      
+      // Clear any existing hint first (important for consecutive hints)
+      setCurrentHint(null);
+      
+      // Show searching toast
+      toast({
+        title: "Finding a hint...",
+        description: "Searching for a word to highlight",
+        variant: "default",
+        duration: 1500,
+      });
+      
+      // Choose a random word from available words
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * availableWords.length);
+        setCurrentHint(availableWords[randomIndex]);
+        
+        // Clear hint after specified duration
+        setTimeout(() => {
+          setCurrentHint(null);
+        }, hintDuration);
+      }, 500);
+    } else {
+      toast({
+        title: "Hint Unavailable",
+        description: "Cannot get hints at this time",
+        variant: "destructive",
+        duration: 1500,
       });
     }
   };
@@ -141,6 +218,16 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
               {gameOver ? 'PLAY AGAIN' : 'START'}
             </button>
           )}
+          
+          {isGameActive && (
+            <button
+              onClick={getHint}
+              className="retro-button text-xs py-1 px-2 bg-amber-700"
+              disabled={hintsUsed >= 3}
+            >
+              HINT ({3 - hintsUsed} LEFT)
+            </button>
+          )}
         </div>
       </div>
 
@@ -148,7 +235,12 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
         {/* Left side - Word grid */}
         <div className="col-span-12 sm:col-span-8">
           <div className="pixel-panel p-1">
-            <LetterGrid size={gridSize} onWordSelected={handleWordSelected} />
+            <LetterGrid 
+              size={gridSize} 
+              onWordSelected={handleWordSelected} 
+              hintWord={currentHint} 
+              ref={letterGridRef}
+            />
           </div>
         </div>
 
@@ -162,6 +254,7 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
               <li>• FIND WORDS BY CONNECTING LETTERS</li>
               <li>• WORDS MUST BE 3+ LETTERS</li>
               <li>• LONGER WORDS = MORE POINTS</li>
+              <li className="text-retro-yellow">• USE HINTS IF YOU'RE STUCK</li>
             </ul>
           </div>
         </div>
