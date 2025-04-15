@@ -28,16 +28,19 @@ const GAMES = [
   {
     id: 1,
     name: "Battle Deck",
+    description: "Assemble your ultimate card deck and engage in strategic turn-based combat.",
     starsCollected: 2,
     totalStars: 3,
     imageUrl: "/battledeck/battldeck.png",
     category: "Strategy",
+    mapX: 30, // Added map coordinates
+    mapY: 25
   },
   {
     id: 2,
     name: "WodBlitz",
-    description: "Adventure with Word puzzles",
-    category: "Memory",
+    description: "Race against the clock to form words in this electrifying puzzle blitz.",
+    category: "Word Puzzle", // Updated category to be more specific
     isUnlocked: true,
     starsCollected: 1,
     totalStars: 3,
@@ -47,8 +50,8 @@ const GAMES = [
   },
   {
     id: 3,
-    name: "Sky Kingdom",
-    description: "Platformer with aerial challenges and power-ups",
+    name: "Skate Park Dash",
+    description: "Grind rails, perform tricks, and dash through vibrant skate parks.",
     category: "Platformer",
     isUnlocked: false,
     starsCollected: 0,
@@ -60,7 +63,7 @@ const GAMES = [
   {
     id: 4,
     name: "Digital Realm",
-    description: "Cyberpunk puzzle game with hacking mechanics",
+    description: "Navigate a neon-drenched cyberspace, solving intricate hacking puzzles.",
     category: "Puzzle",
     isUnlocked: false,
     starsCollected: 0,

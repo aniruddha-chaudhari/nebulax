@@ -41,6 +41,14 @@ const LevelCard = ({
       console.log(`Routing to /home/wodblitz for ${name}`);
       return "/home/wodblitz";
     }
+    // Add specific routing for SkateparkDash - include all possible variations
+    if (name && (name.trim().toLowerCase() === "skateparkdash".toLowerCase() || 
+                 name.trim().toLowerCase() === "Skate Park Dash".toLowerCase() ||
+                 name.trim().toLowerCase() === "skateboarddash".toLowerCase() ||
+                 name.trim().toLowerCase() === "skateboard dash".toLowerCase())) {
+      console.log(`Routing to /home/skateparkdash for ${name}`);
+      return "/home/skateparkdash";
+    }
     console.log(`Routing to /level/${id} for ${name}`);
     return `/level/${id}`;
   };
