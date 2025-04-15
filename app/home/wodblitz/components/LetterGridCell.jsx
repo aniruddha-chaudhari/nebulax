@@ -13,7 +13,9 @@ const LetterGridCell = ({
 }) => {
   return (
     <div
-      className={`grid-cell ${isSelected ? 'grid-cell-selected' : ''}`}
+      className={`grid-cell font-pixel font-bold text-lg md:text-xl text-retro-blue flex items-center justify-center ${
+        isSelected ? 'grid-cell-selected text-white' : ''
+      }`}
       onMouseDown={() => onMouseDown(rowIndex, colIndex)}
       onMouseEnter={() => onMouseEnter(rowIndex, colIndex)}
       onMouseUp={onMouseUp}

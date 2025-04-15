@@ -14,7 +14,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
   const [isGameActive, setIsGameActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [highScore, setHighScore] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const { toast } = useToast();
 
   // Load high score from localStorage
@@ -27,13 +26,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
 
   // Start a new game
   const startGame = () => {
-    // Play start game sound
-    if (soundEnabled) {
-      const startSound = new Audio('/wodblitz/sounds/start.mp3');
-      startSound.volume = 0.4;
-      startSound.play().catch(error => console.error('Error playing sound:', error));
-    }
-    
     setScore(0);
     setFoundWords([]);
     setIsGameActive(true);
@@ -44,13 +36,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
   const handleTimeUp = () => {
     setIsGameActive(false);
     setGameOver(true);
-    
-    // Play game over sound
-    if (soundEnabled) {
-      const gameOverSound = new Audio('/wodblitz/sounds/gameover.mp3');
-      gameOverSound.volume = 0.4;
-      gameOverSound.play().catch(error => console.error('Error playing sound:', error));
-    }
     
     // Update high score if needed
     if (score > highScore) {
@@ -80,13 +65,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
       const wordScore = formattedWord.length;
       setScore(prev => prev + wordScore);
       
-      // Play success sound
-      if (soundEnabled) {
-        const successSound = new Audio('/wodblitz/sounds/success.mp3');
-        successSound.volume = 0.3;
-        successSound.play().catch(error => console.error('Error playing sound:', error));
-      }
-      
       // Show toast for valid word
       toast({
         title: `${formattedWord.toUpperCase()} (+${wordScore})`,
@@ -95,12 +73,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
       });
     } else if (foundWords.includes(formattedWord)) {
       // Word already found
-      if (soundEnabled) {
-        const errorSound = new Audio('/wodblitz/sounds/error.mp3');
-        errorSound.volume = 0.2;
-        errorSound.play().catch(error => console.error('Error playing sound:', error));
-      }
-      
       toast({
         title: `${formattedWord.toUpperCase()}`,
         description: "Word already found!",
@@ -109,12 +81,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
       });
     } else {
       // Invalid word
-      if (soundEnabled) {
-        const errorSound = new Audio('/wodblitz/sounds/error.mp3');
-        errorSound.volume = 0.2;
-        errorSound.play().catch(error => console.error('Error playing sound:', error));
-      }
-      
       toast({
         title: `${formattedWord.toUpperCase()}`,
         description: "Not in word list!",
@@ -122,11 +88,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
         duration: 1500,
       });
     }
-  };
-
-  // Toggle sound
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
   };
 
   return (
@@ -140,7 +101,7 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
             </button>
           </Link>
           <div>
-            <h1 className="font-pixel text-xl text-retro-purple">WORD GRID</h1>
+            <h1 className="font-pixel text-xl text-retro-purple">WOD BLITZ</h1>
             <p className="font-pixel text-xs text-retro-blue">FIND WORDS - BEAT THE CLOCK</p>
           </div>
         </header>
@@ -180,13 +141,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
               {gameOver ? 'PLAY AGAIN' : 'START'}
             </button>
           )}
-          
-          <button 
-            onClick={toggleSound}
-            className="retro-button bg-retro-grid text-xs py-1 px-2"
-          >
-            {soundEnabled ? 'Sound ON' : 'Sound OFF'}
-          </button>
         </div>
       </div>
 

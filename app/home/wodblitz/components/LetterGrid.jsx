@@ -50,11 +50,6 @@ const LetterGrid = ({ size, onWordSelected }) => {
 
   // Start word selection
   const handleMouseDown = (rowIndex, colIndex) => {
-    // Play selection sound
-    const selectSound = new Audio('/wodblitz/sounds/select.mp3');
-    selectSound.volume = 0.3;
-    selectSound.play().catch(error => console.error('Error playing sound:', error));
-    
     setIsSelecting(true);
     const newSelectedCells = [{ row: rowIndex, col: colIndex }];
     setSelectedCells(newSelectedCells);
@@ -80,11 +75,6 @@ const LetterGrid = ({ size, onWordSelected }) => {
       const newSelectedCells = [...selectedCells, { row: rowIndex, col: colIndex }];
       setSelectedCells(newSelectedCells);
       setSelectedWord(prevWord => prevWord + grid[rowIndex][colIndex]);
-      
-      // Play selection sound
-      const selectSound = new Audio('/wodblitz/sounds/select.mp3');
-      selectSound.volume = 0.2;
-      selectSound.play().catch(error => console.error('Error playing sound:', error));
     }
   };
 
@@ -95,11 +85,6 @@ const LetterGrid = ({ size, onWordSelected }) => {
       
       if (selectedWord.length >= 3) {
         onWordSelected(selectedWord);
-      } else {
-        // Play error sound for words shorter than 3 letters
-        const errorSound = new Audio('/wodblitz/sounds/error.mp3');
-        errorSound.volume = 0.3;
-        errorSound.play().catch(error => console.error('Error playing sound:', error));
       }
       
       // Reset selection
@@ -121,8 +106,8 @@ const LetterGrid = ({ size, onWordSelected }) => {
         }
       }}
     >
-      <div className="letter-grid-container">
-        <div className="grid grid-cols-10 gap-0.5">
+      <div className="letter-grid-container p-1">
+        <div className="grid grid-cols-10 gap-1">
           {grid.map((row, rowIndex) =>
             row.map((letter, colIndex) => (
               <LetterGridCell
