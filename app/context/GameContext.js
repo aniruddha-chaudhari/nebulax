@@ -1,11 +1,36 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { generateGameData } from '@/app/lib/gameData';
-import { toast } from 'sonner';
 
 // Define the Context
 const GameContext = createContext(undefined);
+
+// Queue to store notifications that will be processed after the current render cycle
+const notificationQueue = [];
+
+// Custom notification function that replaces toast
+const notify = (message, type = 'info', title = '') => {
+  // Add notification to queue instead of dispatching immediately
+  notificationQueue.push({ message, type, title });
+
+  // Process the queue in the next microtask
+  if (typeof window !== 'undefined' && notificationQueue.length === 1) {
+    Promise.resolve().then(processNotificationQueue);
+  }
+};
+
+// Process all queued notifications
+const processNotificationQueue = () => {
+  if (typeof window !== 'undefined') {
+    while (notificationQueue.length > 0) {
+      const notification = notificationQueue.shift();
+      window.dispatchEvent(new CustomEvent('game:notification', { 
+        detail: notification
+      }));
+    }
+  }
+};
 
 // Initial state creator function
 const createInitialState = () => {
@@ -48,7 +73,7 @@ const gameReducer = (state, action) => {
       const cardToPlay = currentPlayer.hand[state.selectedCardIndex];
       
       if (cardToPlay.cost > currentPlayer.mana) {
-        toast.error("Not enough mana to play this card!");
+        notify("Not enough mana to play this card!", 'error');
         return state;
       }
       
@@ -66,7 +91,7 @@ const gameReducer = (state, action) => {
           return player;
         });
         
-        toast.success(`Dealt ${cardToPlay.power} damage!`);
+        notify(`Dealt ${cardToPlay.power} damage!`, 'success');
       } else if (cardToPlay.type === 'Defense' && cardToPlay.power) {
         updatedPlayers = updatedPlayers.map(player => {
           if (player.id === currentPlayer.id) {
@@ -78,7 +103,7 @@ const gameReducer = (state, action) => {
           return player;
         });
         
-        toast.success(`Restored ${cardToPlay.power} health!`);
+        notify(`Restored ${cardToPlay.power} health!`, 'healing');
       } else if (cardToPlay.type === 'Special') {
         updatedPlayers = updatedPlayers.map(player => {
           if (player.id === currentPlayer.id) {
@@ -88,7 +113,7 @@ const gameReducer = (state, action) => {
             if (newDeck.length > 0) {
               const drawnCard = newDeck.pop();
               newHand.push(drawnCard);
-              toast.success("Drew an extra card!");
+              notify("Drew an extra card!", 'info');
             }
             
             return {
@@ -100,8 +125,6 @@ const gameReducer = (state, action) => {
           return player;
         });
       }
-      
-      const playedCard = { ...cardToPlay };
       
       updatedPlayers = updatedPlayers.map(player => {
         if (player.id === currentPlayer.id) {
@@ -117,12 +140,12 @@ const gameReducer = (state, action) => {
       
       const opponent = updatedPlayers.find(p => p.id === opponentId);
       if (opponent && opponent.health <= 0) {
-        toast.success("You won the game!");
+        notify("You won the game!", 'success');
         return {
           ...state,
           players: updatedPlayers,
           selectedCardIndex: null,
-          lastPlayedCard: playedCard,
+          lastPlayedCard: cardToPlay,
           gamePhase: 'gameOver',
           winner: currentPlayer.id
         };
@@ -132,7 +155,7 @@ const gameReducer = (state, action) => {
         ...state,
         players: updatedPlayers,
         selectedCardIndex: null,
-        lastPlayedCard: playedCard
+        lastPlayedCard: cardToPlay
       };
     }
     
@@ -153,7 +176,7 @@ const gameReducer = (state, action) => {
       
       const cardIndex = action.cardIndex;
       if (cardIndex === -1 || cardIndex >= aiPlayer.hand.length) {
-        toast.info("AI passes its turn");
+        notify("AI passes its turn", 'info');
         
         let updatedPlayers = state.players.map(player => {
           const newHand = [...player.hand];
@@ -203,7 +226,7 @@ const gameReducer = (state, action) => {
           return player;
         });
         
-        toast.error(`AI dealt ${cardToPlay.power} damage to you!`);
+        notify(`AI dealt ${cardToPlay.power} damage to you!`, 'error');
       } else if (cardToPlay.type === 'Defense' && cardToPlay.power) {
         updatedPlayers = updatedPlayers.map(player => {
           if (player.id === aiPlayer.id) {
@@ -215,7 +238,7 @@ const gameReducer = (state, action) => {
           return player;
         });
         
-        toast.info(`AI restored ${cardToPlay.power} health!`);
+        notify(`AI restored ${cardToPlay.power} health!`, 'info');
       } else if (cardToPlay.type === 'Special') {
         updatedPlayers = updatedPlayers.map(player => {
           if (player.id === aiPlayer.id) {
@@ -225,7 +248,7 @@ const gameReducer = (state, action) => {
             if (newDeck.length > 0) {
               const drawnCard = newDeck.pop();
               newHand.push(drawnCard);
-              toast.info("AI drew an extra card!");
+              notify("AI drew an extra card!", 'info');
             }
             
             return {
@@ -252,7 +275,7 @@ const gameReducer = (state, action) => {
       
       const playerState = updatedPlayers.find(p => p.id === playerId);
       if (playerState && playerState.health <= 0) {
-        toast.error("You lost the game!");
+        notify("You lost the game!", 'error');
         return {
           ...state,
           players: updatedPlayers,
@@ -328,6 +351,7 @@ const gameReducer = (state, action) => {
     case 'INCREMENT_MANA': {
       const updatedPlayers = state.players.map(player => {
         const newMaxMana = Math.min(10, player.maxMana + 1);
+        
         return {
           ...player,
           mana: newMaxMana,
@@ -363,10 +387,6 @@ const getAICardToPlay = (aiPlayer) => {
   const sortedCards = [...playableCards].sort((a, b) => {
     if (a.card.type === 'Attack' && b.card.type !== 'Attack') return -1;
     if (a.card.type !== 'Attack' && b.card.type === 'Attack') return 1;
-    
-    if (a.card.type === 'Attack' && b.card.type === 'Attack') {
-      return (b.card.power || 0) - (a.card.power || 0);
-    }
     
     if (aiPlayer.health < 10) {
       if (a.card.type === 'Defense' && b.card.type !== 'Defense') return -1;

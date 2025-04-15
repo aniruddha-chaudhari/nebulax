@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { useGame } from '@/app/context/GameContext';
 import PlayerStats from './PlayerStats';
 import LastPlayedCard from './LastPlayedCard';
-import { Sword, Clock } from 'lucide-react';
+import { Sword, Clock, CheckCircle, XCircle, PlusCircle, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const GameBoard = () => {
   const { 
@@ -23,6 +24,8 @@ const GameBoard = () => {
   const isGameOver = gamePhase === 'gameOver';
   const winner = gameState.winner === currentPlayer?.id ? 'You Won!' : 'AI Won!';
   const isPlayerTurn = gamePhase === 'playerTurn';
+
+
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -51,17 +54,8 @@ const GameBoard = () => {
   };
 
   return (
-    <div className="game-board bg-muted p-3 rounded-sm pixel-border mb-6 relative overflow-hidden">
-      {/* Turn Indicator */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-4 py-1 rounded-sm border border-border z-10">
-        <div className="flex items-center gap-2">
-          <Clock size={16} className={isPlayerTurn ? "text-primary" : "text-destructive"} />
-          <span className="font-pixel text-xs">
-            {isPlayerTurn ? "Your Turn" : "AI Turn"}
-          </span>
-        </div>
-      </div>
-      
+    <div className="game-board bg-muted p-3 rounded-sm pixel-border mb-6 relative">
+
       {/* Game Layout - Horizontal Layout */}
       <div className="flex flex-row items-stretch gap-3 p-2">
         {/* Left - Current Player */}
@@ -73,12 +67,26 @@ const GameBoard = () => {
               isOpponent={false}
             />
           )}
+          
+          {/* Player Notification Area */}
+          <AnimatePresence>
+            {isPlayerTurn && (
+              <motion.div 
+                className="mt-2 bg-primary/20 border border-primary/30 rounded-sm p-1"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+              >
+                <p className="font-pixel text-[8px] text-white text-center">YOUR TURN</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         
         {/* Center - Battlefield */}
         <div className="w-1/2 flex-grow">
           <div 
-            className={`game-battlefield h-[180px] flex items-center justify-center ${
+            className={`game-battlefield h-[210px] flex items-center justify-center ${
               isPlayerTurn && !isGameOver 
                 ? `${isDragOver ? 'bg-primary/20 border-primary' : 'bg-card/20 border-border/50'} cursor-pointer transition-colors` 
                 : 'bg-card/20 border-border/50'
@@ -133,6 +141,20 @@ const GameBoard = () => {
               isOpponent={true}
             />
           )}
+          
+          {/* Opponent Notification Area */}
+          <AnimatePresence>
+            {!isPlayerTurn && !isGameOver && (
+              <motion.div 
+                className="mt-2 bg-destructive/20 border border-destructive/30 rounded-sm p-1"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+              >
+                <p className="font-pixel text-[8px] text-white text-center">AI TURN</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
