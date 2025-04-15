@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import LetterGrid from './LetterGrid';
 import GameTimer from './GameTimer';
 import ScoreDisplay from './ScoreDisplay';
-import { isValidWord } from '../..//../utils/dictionary';
+import { isValidWord } from '../../../utils/dictionary';
 import { useToast } from '@/app/hooks/use-toast';
 
 const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
