@@ -74,7 +74,7 @@ const GameContainer = ({ soundEnabled = true }) => {
   if (error) {
     return (
       <div 
-        className="w-full max-w-2xl h-[320px] md:h-[360px] bg-game-dark border-4 border-red-500 rounded-md overflow-hidden mx-auto flex items-center justify-center"
+        className="w-full max-w-4xl h-[420px] md:h-[560px] bg-game-dark border-4 border-red-500 rounded-md overflow-hidden mx-auto flex items-center justify-center"
         data-testid="skate-game-error"
       >
         <div className="text-red-500 font-pixel text-center p-4">
@@ -89,7 +89,7 @@ const GameContainer = ({ soundEnabled = true }) => {
   return (
     <div 
       ref={gameContainerRef} 
-      className="w-full max-w-2xl h-[320px] md:h-[360px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto"
+      className="w-full max-w-4xl h-[420px] md:h-[560px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto"
       data-testid="skate-game-container"
     />
   );

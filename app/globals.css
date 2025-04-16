@@ -583,3 +583,16 @@
     border-color: rgb(var(--game-accent));
   }
 }
+
+/* Add at the end of your existing globals.css file */
+
+/* Touch dragging utilities */
+.touch-dragging {
+  opacity: 0.7;
+  transform: scale(1.05);
+}
+
+/* Target the overlay inside the card when it's being dragged */
+.touch-dragging\:bg-primary\/20:active {
+  background-color: rgba(var(--color-primary), 0.2);
+}

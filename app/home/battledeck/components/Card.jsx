@@ -4,10 +4,33 @@ import React from 'react';
 import { Droplet, Sword, Shield, Sparkles } from 'lucide-react';
 
 const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDraggable = false }) => {
+  // Standard drag start handler for desktop
   const handleDragStart = (e) => {
     if (isDraggable) {
       e.dataTransfer.setData('cardId', card.id);
     }
+  };
+
+  // Touch event handlers for mobile
+  const handleTouchStart = (e) => {
+    if (!isDraggable) return;
+    
+    // Store the card ID in a global variable that GameBoard can access
+    window.touchDraggedCardId = card.id;
+    
+    // Add a visual feedback class
+    if (e.currentTarget) {
+      e.currentTarget.classList.add('touch-dragging');
+    }
+  };
+  
+  const handleTouchEnd = (e) => {
+    // Remove visual feedback
+    if (e.currentTarget) {
+      e.currentTarget.classList.remove('touch-dragging');
+    }
+    
+    // The actual drop handling will be in the GameBoard component
   };
 
   const getCardTypeIcon = () => {
@@ -43,7 +66,7 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
 
   return (
     <div 
-      className={`card relative w-[80px] h-[120px] bg-card p-2 rounded-sm cursor-default transition-all
+      className={`card relative w-[70px] sm:w-[80px] h-[110px] sm:h-[120px] bg-card p-2 rounded-sm cursor-default transition-all
         ${getCardBorderColor()}
         ${isSelectable ? 'cursor-pointer hover:scale-105' : ''} 
         ${isSelected ? 'scale-105 shadow-glow' : ''}
@@ -52,6 +75,8 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
       onClick={isSelectable ? onClick : undefined}
       draggable={draggableValue}
       onDragStart={handleDragStart}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* Card Cost */}
       <div className="absolute top-1 left-1 flex items-center gap-1 bg-muted/80 rounded-sm px-1">
@@ -66,7 +91,7 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
 
       {/* Card Content */}
       <div className="mt-4 flex flex-col items-center justify-center h-full">
-        <h3 className="font-pixel text-[8px] text-center mb-2 text-white">{card.name}</h3>
+        <h3 className="font-pixel text-[8px] text-center mb-1 text-white line-clamp-2 w-full overflow-hidden">{card.name}</h3>
         
         {/* Card Type & Power */}
         <div className={`text-center mt-1 px-1 py-0.5 rounded-sm text-[8px] font-vt323
@@ -78,10 +103,15 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
         </div>
         
         {/* Card Effect - Truncated */}
-        <p className="text-[7px] text-center mt-2 text-muted-foreground px-1 truncate">
+        <p className="text-[7px] text-center mt-1 text-muted-foreground px-1 line-clamp-3 overflow-hidden">
           {card.effect}
         </p>
       </div>
+
+      {/* Visual indicator for touch dragging */}
+      {isDraggable && (
+        <div className="absolute inset-0 bg-primary/0 hover:bg-primary/10 touch-dragging:bg-primary/20 rounded-sm" />
+      )}
     </div>
   );
 };

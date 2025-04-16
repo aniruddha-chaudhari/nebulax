@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useGame } from '@/app/context/GameContext';
 import Card from './Card';
-import { Droplet, AlertCircle } from 'lucide-react';
+import { Droplet, AlertCircle, MousePointer } from 'lucide-react';
 
 const HandArea = () => {
   const { 
@@ -19,26 +19,18 @@ const HandArea = () => {
 
   const isPlayerTurn = gamePhase === 'playerTurn';
   const isGameOver = gamePhase === 'gameOver';
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const cardId = e.dataTransfer.getData('cardId');
-    const cardIndex = playerHand.findIndex(card => card.id === cardId);
-    
-    if (cardIndex !== -1 && canPlayCard(cardIndex)) {
-      selectCard(cardIndex);
-      playCard();
-    }
-  };
+  // Detect if we're on a touch device
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  
+  React.useEffect(() => {
+    // Simple touch detection
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   return (
     <div className="bg-muted p-2 mt-2 pixel-border-sm">
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center mb-2 gap-2 xs:gap-0">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-pixel text-white">Your Hand</h2>
           <span className="bg-card px-2 py-0.5 rounded-sm text-xs font-vt323 text-primary-foreground">{playerHand.length} cards</span>
@@ -46,7 +38,7 @@ const HandArea = () => {
         
         {isPlayerTurn && !isGameOver && (
           <button 
-            className="btn-pixel text-xs bg-secondary hover:scale-105 transition-transform"
+            className="btn-pixel text-xs bg-secondary hover:scale-105 transition-transform w-full xs:w-auto"
             onClick={endTurn}
           >
             End Turn
@@ -56,17 +48,19 @@ const HandArea = () => {
       
       {/* Mana Display */}
       <div className="flex items-center justify-center gap-2 mb-2 bg-card/30 py-1 px-3 rounded-sm">
-        <Droplet className="text-primary" size={14} />
+        <Droplet className="text-primary flex-shrink-0" size={14} />
         <div className="text-sm font-vt323 text-white">
           Mana: <span className="text-primary">{currentPlayer?.mana || 0}/{currentPlayer?.maxMana || 0}</span>
         </div>
       </div>
       
-      {/* Card Instructions */}
+      {/* Card Instructions - Updated for mobile */}
       <div className="mb-2 text-center bg-card/20 p-1 rounded-sm">
-        <p className="text-x font-vt323 text-white">
+        <p className="text-xs font-vt323 text-white overflow-hidden text-ellipsis">
           {isPlayerTurn 
-            ? "Click a card to select it, then click 'Play Card' or drag to battlefield" 
+            ? isTouchDevice
+              ? "Tap a card then tap battlefield to play"
+              : "Click to select or drag to battlefield"
             : "Wait for AI to make its move"}
         </p>
       </div>

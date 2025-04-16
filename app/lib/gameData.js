@@ -210,7 +210,7 @@ const createPlayer = (name) => {
 export const generateGameData = () => {  
   // Create player and AI
   const player = createPlayer('You');
-  const aiPlayer = createPlayer('AI Opponent');
+  const aiPlayer = createPlayer('AI');
   
   const players = [player, aiPlayer];
   

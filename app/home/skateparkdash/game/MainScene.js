@@ -46,15 +46,20 @@ export class MainScene extends Phaser.Scene {
       // Instead of pixel font loading which isn't working correctly,
       // we'll use the Press Start 2P font we already loaded via CSS
       
-      console.log("Creating game textures...");
-      // Load sprite sheets
-      this.createPlayerSprite();
+      console.log("Loading game textures...");
+      
+      // Load player images from public folder
+      this.load.image('player', '/skatedash/normal.png');
+      this.load.image('player-duck', '/skatedash/duck.png');
+      this.load.image('player-jump', '/skatedash/jump.png');
+      
+      // Create obstacle sprites and background sprites
       this.createObstacleSprites();
       this.createBackgroundSprites();
       
       // Mark that textures were created successfully
       this.texturesCreated = true;
-      console.log("Game textures created successfully");
+      console.log("Game textures loaded successfully");
     } catch (err) {
       console.error("Error in preload:", err);
       this.texturesCreated = false;
@@ -251,6 +256,9 @@ export class MainScene extends Phaser.Scene {
   resetGame() {
     console.log("Resetting game...");
     
+    // First, remove all collision listeners
+    this.physics.world.colliders.destroy();
+    
     // Clear any existing obstacles by destroying each one individually
     // to ensure proper cleanup of graphics and physics bodies
     this.obstacles.getChildren().forEach((obstacle) => {
@@ -271,6 +279,16 @@ export class MainScene extends Phaser.Scene {
       this.player.isDucking = false;
       this.player.standUp();
     }
+    
+    // Re-add collision detection
+    this.physics.add.collider(this.player.sprite, this.ground);
+    this.physics.add.overlap(
+      this.player.sprite, 
+      this.obstacles, 
+      this.handleCollision, 
+      undefined, 
+      this
+    );
     
     // Start the game again
     this.startGame();
@@ -343,7 +361,11 @@ export class MainScene extends Phaser.Scene {
     
     let obstacle;
     
-    // Create a much larger, easier to see obstacle
+    // Calculate scale based on screen height to make obstacles proportionally sized
+    const baseScale = 3.0;
+    const screenScale = Math.max(1, this.scale.height / 600); // Base scale on a 600px reference height
+    const finalScale = baseScale * screenScale;
+    
     if (obstacleType === 0) {
       // Bench - player needs to jump over it
       obstacle = this.obstacles.create(
@@ -352,20 +374,22 @@ export class MainScene extends Phaser.Scene {
         "bench"
       );
       obstacle.setOrigin(0.5, 1);
-      obstacle.setScale(2.5); // Make it much bigger
+      obstacle.setScale(finalScale);
       obstacle.body.setSize(30, 20);
       obstacle.body.setOffset(0, 10);
       console.log("Created bench obstacle at", obstacle.x, obstacle.y);
     } else {
       // Overhead sign - player needs to duck under it
+      // Position sign higher for larger screens
+      const signHeight = this.scale.height - Math.min(100, this.scale.height * 0.25);
       obstacle = this.obstacles.create(
         this.scale.width + 100,
-        this.scale.height - 95,
+        signHeight,
         "sign"
       );
       obstacle.setOrigin(0.5, 0.5);
-      obstacle.setScale(2.5); // Make it much bigger
-      obstacle.body.setSize(20, 30);
+      obstacle.setScale(finalScale);
+      obstacle.body.setSize(20, 40); // Taller collision box
       console.log("Created sign obstacle at", obstacle.x, obstacle.y);
     }
     
@@ -403,7 +427,8 @@ export class MainScene extends Phaser.Scene {
       active: obstacle.active,
       texture: obstacle.texture.key,
       velocityX: obstacle.body.velocity.x,
-      physicsEnabled: obstacle.body.enable
+      physicsEnabled: obstacle.body.enable,
+      scale: obstacle.scale
     });
     
     // Schedule next obstacle with a new non-looping timer
@@ -510,43 +535,49 @@ export class MainScene extends Phaser.Scene {
   }
   
   createBackground() {
-    // Sky - using a cleaner approach without overlap
-    const sky = this.add.rectangle(
-      0, 0, 
-      this.scale.width, this.scale.height, 
-      0x1f2560
-    ).setOrigin(0, 0);
+    // Create a single bottom position for all buildings
+    const groundLevel = this.scale.height - 20; // Position right above the ground
+    
+    // Use a larger building height for better scaling on big screens
+    const buildingHeight = Math.max(240, this.scale.height * 0.6); // Taller buildings that scale with screen height
+    
+    // Static sky background with moon and stars that doesn't scroll
+    const sky = this.add.image(0, 0, "sky-background")
+      .setOrigin(0, 0)
+      .setDisplaySize(this.scale.width, this.scale.height);
     
     // Far buildings (slowest) - set proper position at bottom of screen
     const backBuildings = this.add.tileSprite(
-      0, this.scale.height - 180, 
-      this.scale.width, 180, 
+      0, groundLevel - 200, 
+      this.scale.width, 200, 
       "back-buildings"
     ).setOrigin(0, 0);
     
     // Mid buildings - positioned relative to bottom of screen
     const midBuildings = this.add.tileSprite(
-      0, this.scale.height - 180,
-      this.scale.width, 180, 
+      0, groundLevel - 240,
+      this.scale.width, 240, 
       "mid-buildings"
     ).setOrigin(0, 0);
     
     // Front buildings (fastest) - positioned relative to bottom of screen
     const frontBuildings = this.add.tileSprite(
-      0, this.scale.height - 180,
-      this.scale.width, 180, 
+      0, groundLevel - 280,
+      this.scale.width, 280, 
       "front-buildings"
     ).setOrigin(0, 0);
     
-    // Store background layers for parallax effect
+    // Store only the buildings in backgroundLayers for parallax scrolling
+    // (sky is not included as it doesn't scroll)
     this.backgroundLayers = [backBuildings, midBuildings, frontBuildings];
   }
   
   updateBackground() {
     // Move background layers at different speeds for parallax effect
-    this.backgroundLayers[0].tilePositionX += 0.5;  // Far buildings (slowest)
-    this.backgroundLayers[1].tilePositionX += 1.0;  // Mid buildings
-    this.backgroundLayers[2].tilePositionX += 2.0;  // Front buildings (fastest)
+    // Increased differences between layers for more pronounced depth
+    this.backgroundLayers[0].tilePositionX += 0.3;  // Far buildings (slowest)
+    this.backgroundLayers[1].tilePositionX += 1.2;  // Mid buildings (medium)
+    this.backgroundLayers[2].tilePositionX += 2.5;  // Front buildings (fastest)
   }
   
   createGround() {
@@ -681,93 +712,144 @@ export class MainScene extends Phaser.Scene {
   
   createBackgroundSprites() {
     try {
-      // Far buildings - with height exactly matching what's needed
-      const backBuildingsCanvas = this.textures.createCanvas("back-buildings", 320, 180);
-      const backCtx = backBuildingsCanvas.getContext();
+      // Create two separate textures:
+      // 1. A static sky texture with moon and stars (non-tiling)
+      // 2. Building textures that will tile horizontally
+
+      // 1. Static sky background with moon and stars
+      const skyCanvas = this.textures.createCanvas("sky-background", 640, 360);
+      const skyCtx = skyCanvas.getContext();
       
       // Clear canvas and set background
-      backCtx.clearRect(0, 0, 320, 180);
-      backCtx.fillStyle = "#1f2560";  // Background color
-      backCtx.fillRect(0, 0, 320, 180);
+      skyCtx.clearRect(0, 0, 640, 360);
+      skyCtx.fillStyle = "#1f2560";  // Background color
+      skyCtx.fillRect(0, 0, 640, 360);
       
-      // Draw stars only in upper portion
-      backCtx.fillStyle = "#f5f5fa";  // White
-      for (let i = 0; i < 30; i++) {
-        const x = Phaser.Math.Between(0, 320);
-        const y = Phaser.Math.Between(0, 60);
+      // Draw stars throughout the sky
+      skyCtx.fillStyle = "#f5f5fa";  // White
+      
+      // Small stars
+      for (let i = 0; i < 200; i++) {
+        const x = Phaser.Math.Between(0, 640);
+        const y = Phaser.Math.Between(0, 240);
         const size = Phaser.Math.Between(1, 2);
-        backCtx.fillRect(x, y, size, size);
+        skyCtx.fillRect(x, y, size, size);
       }
+      
+      // Medium stars
+      for (let i = 0; i < 50; i++) {
+        const x = Phaser.Math.Between(0, 640);
+        const y = Phaser.Math.Between(0, 200);
+        const size = 2;
+        skyCtx.fillRect(x, y, size, size);
+      }
+      
+      // Large stars
+      for (let i = 0; i < 25; i++) {
+        const x = Phaser.Math.Between(0, 640);
+        const y = Phaser.Math.Between(0, 180);
+        
+        // Draw a 4-point star
+        skyCtx.fillRect(x, y, 3, 3);
+        skyCtx.fillRect(x-1, y, 5, 1);
+        skyCtx.fillRect(x, y-1, 1, 5);
+      }
+      
+      // Draw the moon in the sky
+      skyCtx.fillStyle = "#f5f5fa";  // White
+      skyCtx.beginPath();
+      skyCtx.arc(320, 80, 45, 0, Math.PI * 2); // Large moon in the center
+      skyCtx.fill();
+      
+      // Add lunar craters
+      skyCtx.fillStyle = "#e1e1e6";  // Slightly darker white
+      skyCtx.beginPath();
+      skyCtx.arc(300, 65, 10, 0, Math.PI * 2);
+      skyCtx.fill();
+      skyCtx.beginPath();
+      skyCtx.arc(335, 95, 12, 0, Math.PI * 2);
+      skyCtx.fill();
+      skyCtx.beginPath();
+      skyCtx.arc(320, 70, 8, 0, Math.PI * 2);
+      skyCtx.fill();
+      
+      // 2. Far buildings - with larger canvas size
+      const backBuildingsCanvas = this.textures.createCanvas("back-buildings", 640, 200);
+      const backCtx = backBuildingsCanvas.getContext();
+      
+      // Clear canvas (transparent background)
+      backCtx.clearRect(0, 0, 640, 200);
       
       // Draw far buildings - only in bottom portion
       backCtx.fillStyle = "#3955b8";  // Blue
-      for (let i = 0; i < 8; i++) {
-        const width = Phaser.Math.Between(30, 60);
-        const height = Phaser.Math.Between(30, 80);
-        const x = i * 40;
-        backCtx.fillRect(x, 180 - height, width, height);
+      for (let i = 0; i < 12; i++) {
+        const width = Phaser.Math.Between(60, 120);
+        const height = Phaser.Math.Between(60, 160);
+        const x = i * 60;
+        backCtx.fillRect(x, 200 - height, width, height);
         
         // Draw windows
         backCtx.fillStyle = "#5b9ddb";  // Light blue
-        for (let wx = x + 5; wx < x + width - 5; wx += 10) {
-          for (let wy = 180 - height + 10; wy < 175; wy += 15) {
-            backCtx.fillRect(wx, wy, 5, 5);
+        for (let wx = x + 10; wx < x + width - 10; wx += 20) {
+          for (let wy = 200 - height + 20; wy < 190; wy += 30) {
+            backCtx.fillRect(wx, wy, 10, 10);
           }
         }
         backCtx.fillStyle = "#3955b8";  // Back to blue for next building
       }
       
-      // Mid buildings - create with transparent background
-      const midBuildingsCanvas = this.textures.createCanvas("mid-buildings", 320, 180);
+      // Mid buildings - transparent background
+      const midBuildingsCanvas = this.textures.createCanvas("mid-buildings", 640, 240);
       const midCtx = midBuildingsCanvas.getContext();
       
       // Clear canvas completely
-      midCtx.clearRect(0, 0, 320, 180);
+      midCtx.clearRect(0, 0, 640, 240);
       
-      // Draw mid buildings - only in bottom portion
+      // Draw mid buildings
       midCtx.fillStyle = "#1f2560";  // Darker blue
-      for (let i = 0; i < 6; i++) {  // Fixed infinite loop by adding a limit
-        const width = Phaser.Math.Between(40, 70);
-        const height = Phaser.Math.Between(60, 120);
-        const x = i * 50 + 10;
-        midCtx.fillRect(x, 180 - height, width, height);
+      for (let i = 0; i < 8; i++) {
+        const width = Phaser.Math.Between(80, 140);
+        const height = Phaser.Math.Between(120, 240);
+        const x = i * 80;
+        midCtx.fillRect(x, 240 - height, width, height);
         
         // Draw windows
         midCtx.fillStyle = "#5b9ddb";  // Light blue
-        for (let wx = x + 8; wx < x + width - 8; wx += 12) {
-          for (let wy = 180 - height + 15; wy < 170; wy += 20) {
-            midCtx.fillRect(wx, wy, 6, 8);
+        for (let wx = x + 16; wx < x + width - 16; wx += 24) {
+          for (let wy = 240 - height + 30; wy < 230; wy += 40) {
+            midCtx.fillRect(wx, wy, 12, 16);
           }
         }
         midCtx.fillStyle = "#1f2560";  // Back to dark blue for next building
       }
       
-      // Front buildings - create with transparent background
-      const frontBuildingsCanvas = this.textures.createCanvas("front-buildings", 320, 180);
+      // Front buildings - transparent background
+      const frontBuildingsCanvas = this.textures.createCanvas("front-buildings", 640, 280);
       const frontCtx = frontBuildingsCanvas.getContext();
       
       // Clear canvas completely
-      frontCtx.clearRect(0, 0, 320, 180);
+      frontCtx.clearRect(0, 0, 640, 280);
       
-      // Draw front buildings - only in bottom portion
+      // Draw front buildings
       frontCtx.fillStyle = "#131318";  // Nearly black
-      for (let i = 0; i < 4; i++) {
-        const width = Phaser.Math.Between(50, 90);
-        const height = Phaser.Math.Between(90, 140);
-        const x = i * 80;
-        frontCtx.fillRect(x, 180 - height, width, height);
+      for (let i = 0; i < 6; i++) {
+        const width = Phaser.Math.Between(100, 180);
+        const height = Phaser.Math.Between(180, 280);
+        const x = i * 120;
+        frontCtx.fillRect(x, 280 - height, width, height);
         
         // Draw windows
         frontCtx.fillStyle = "#8952e0";  // Purple
-        for (let wx = x + 10; wx < x + width - 10; wx += 15) {
-          for (let wy = 180 - height + 20; wy < 160; wy += 25) {
-            frontCtx.fillRect(wx, wy, 8, 10);
+        for (let wx = x + 20; wx < x + width - 20; wx += 30) {
+          for (let wy = 280 - height + 40; wy < 270; wy += 50) {
+            frontCtx.fillRect(wx, wy, 16, 20);
           }
         }
         frontCtx.fillStyle = "#131318";  // Back to black for next building
       }
       
-      // Update the textures
+      // Update all textures
+      skyCanvas.refresh();
       backBuildingsCanvas.refresh();
       midBuildingsCanvas.refresh();
       frontBuildingsCanvas.refresh();

@@ -57,12 +57,12 @@ const GameHeader = () => {
   }, [addNotification]);
 
   return (
-    <div className="bg-muted p-4 rounded-t-sm mb-4 pixel-border-sm">
-      <div className="grid grid-cols-3 items-center">
+    <div className="bg-muted p-2 sm:p-4 rounded-t-sm mb-4 pixel-border-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-0 items-center">
         {/* Left - Player Name */}
         <div className="flex items-center gap-2">
-          <User size={20} className="text-accent" />
-          <span className="font-pixel text-xs md:text-sm text-accent">
+          <User size={20} className="text-accent flex-shrink-0" />
+          <span className="font-pixel text-xs md:text-sm text-accent truncate">
             {currentPlayer?.name || 'Player'}
           </span>
         </div>
@@ -90,6 +90,7 @@ const GameHeader = () => {
                       ${currentNotification.type === 'success' ? 'text-game-green' : 
                         currentNotification.type === 'error' ? 'text-game-red' : 
                         currentNotification.type === 'healing' ? 'text-game-blue' : 'text-game-yellow'}
+                      line-clamp-1
                     `}>{currentNotification.message}</span>
                   </motion.div>
                 </div>
@@ -99,15 +100,15 @@ const GameHeader = () => {
         </div>
         
         {/* Right - Game Points */}
-        <div className="flex items-center gap-2 justify-end">
-          <div className="flex items-center gap-1 mr-4 text-secondary">
-            <Star size={18} />
-            <span className="font-vt323 text-lg">FP: {playerPoints.folly}</span>
+        <div className="flex items-center gap-2 justify-center sm:justify-end">
+          <div className="flex items-center gap-1 mr-2 sm:mr-4 text-secondary">
+            <Star size={16} className="flex-shrink-0" />
+            <span className="font-vt323 text-sm sm:text-lg">FP: {playerPoints.folly}</span>
           </div>
           
           <div className="flex items-center gap-1 text-accent">
-            <Trophy size={18} />
-            <span className="font-vt323 text-lg">PP: {playerPoints.prestige}</span>
+            <Trophy size={16} className="flex-shrink-0" />
+            <span className="font-vt323 text-sm sm:text-lg">PP: {playerPoints.prestige}</span>
           </div>
         </div>
       </div>

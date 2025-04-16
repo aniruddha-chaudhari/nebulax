@@ -357,25 +357,25 @@ export default function Index() {
       {/* <RetroFallingStar /> */}
       
       {/* Top section - Primarily asteroids with minimal other elements */}
-      <AsteroidImage className="top-10 right-10 z-10" />
-      <Asteroid2Image className="top-20 left-20 z-10" />
-      <TelescopeImage className="top-40 left-[15%] z-10" />
-      <Asteroid3Image className="top-24 right-[25%] z-10" />
+      <AsteroidImage className="hidden md:block top-10 right-10 z-10" />
+      <Asteroid2Image className="hidden md:block top-20 left-20 z-10" />
+      <TelescopeImage className="absolute top-40 left-[4%] md:left-[15%] z-10 scale-75 md:scale-100" />
+      <Asteroid3Image className="hidden md:block top-24 right-[25%] z-10" />
     
       
-      {/* Just one Saturn as a focal point */}
-      <SaturnImage className="top-48 right-[10%] z-10" />
+      {/* Just one Saturn as a focal point - visible on all devices but smaller on mobile */}
+      <SaturnImage className="top-48 right-[10%] z-10 scale-75 md:scale-100" />
 
-      {/* Render all the coins using the positions array */}
+      {/* Render reduced coins on mobile, full set on larger screens */}
       {coinPositions.map((pos, index) => (
         <motion.div 
           key={`coin-${index}`}
-          className="absolute z-20"
+          className={`absolute z-20 ${index > 3 ? 'hidden md:block' : ''}`}
           style={{
             top: pos.top,
             left: pos.left,
             right: pos.right,
-            scale: pos.scale
+            scale: pos.scale * (typeof window !== 'undefined' && window.innerWidth < 768 ? 0.8 : 1)
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -385,7 +385,7 @@ export default function Index() {
         </motion.div>
       ))}
 
-      <Coin className="absolute top-40 right-[25%]" />
+      <Coin className="hidden md:block absolute top-40 right-[25%]" />
       
       <motion.div 
         className="text-center mb-4 mt-16 px-4"
@@ -429,6 +429,9 @@ export default function Index() {
           An 8-bit adventure awaits...
         </motion.p>
       </motion.div>
+      {/* Small mobile-friendly asteroid in top corner */}
+      <Asteroid2Image className="block md:hidden absolute top-4 right-4 z-10 opacity-60 scale-50" />
+      
       <motion.div 
         className="w-84 h-84 mb-4 relative"
         variants={itemVariants}
@@ -480,9 +483,12 @@ export default function Index() {
         />
       </motion.div>
       <motion.div 
-        className="flex flex-col gap-3 items-center max-w-xs w-full px-4 mb-8"
+        className="flex flex-col gap-3 items-center max-w-xs w-full px-4 mb-8 relative"
         variants={itemVariants}
       >
+        {/* Small asteroid near action buttons on mobile only */}
+        <AsteroidImage className="block md:hidden absolute -left-12 top-1/2 z-10 opacity-40 scale-50" />
+        
         <Link href="/home" className="w-full">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -529,15 +535,18 @@ export default function Index() {
         </motion.div>
       </motion.div>
 
-      {/* Middle section - Focus on asteroids with sparse other elements */}
-      <Asteroid3Image className="absolute left-[5%] top-[45%] z-10 opacity-80" />
-      <AsteroidImage className="absolute right-[12%] top-[50%] z-10 opacity-70" />
-      <BlackholeImage className="absolute left-[10%] top-[29%] z-10 opacity-50" />
-      <Asteroid2Image className="absolute right-[28%] top-[60%] z-10 opacity-75" />
-    <RegularBlackholeImage className="absolute left-[35%] top-[55%] z-10 opacity-60" />
-      <SpacecraftImage className="absolute left-[40%] top-[30%] z-10 opacity-90" />
-      <ISSImage className="absolute right-[15%] top-[28%] z-10 opacity-80" />
+      {/* Middle section - Only show select elements on mobile, full set on desktop */}
+      <Asteroid3Image className="hidden md:block absolute left-[5%] top-[45%] z-10 opacity-80" />
+      <AsteroidImage className="hidden md:block absolute right-[12%] top-[50%] z-10 opacity-70" />
+      <BlackholeImage className="hidden md:block absolute left-[10%] top-[29%] z-10 opacity-50 scale-75 md:scale-100" />
+      <Asteroid2Image className="hidden md:block absolute right-[28%] top-[60%] z-10 opacity-75" />
+      <RegularBlackholeImage className="hidden md:block absolute left-[35%] top-[55%] z-10 opacity-60" />
+      <SpacecraftImage className="absolute left-[40%] top-[30%] z-10 opacity-90 scale-75 md:scale-100" />
+      <ISSImage className="hidden md:block absolute right-[15%] top-[28%] z-10 opacity-80" />
 
+      {/* Small blackhole element that looks good on mobile */}
+      <BlackholeImage className="block md:hidden absolute left-4 top-[38%] z-10 opacity-30 scale-50" />
+      
       <div className="w-full max-w-6xl px-4 py-12" ref={featuresRef}>
         <motion.div 
           className="text-center mb-8"
@@ -747,13 +756,13 @@ export default function Index() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: false }}
       >
-        <InteractiveSaturn className="top-[75%] left-[20%] z-20" />
+        <InteractiveSaturn className="hidden md:block top-[75%] left-[20%] z-20" />
         
         <div className="flex justify-center gap-2">
           {[...Array(16)].map((_, i) => (
             <motion.div 
               key={i} 
-              className={`w-2 h-2 ${i % 2 === 0 ? 'bg-game-primary' : 'bg-game-accent'}`}
+              className={`${i > 7 && 'hidden sm:block'} w-2 h-2 ${i % 2 === 0 ? 'bg-game-primary' : 'bg-game-accent'}`}
               animate={{ scale: [1, 1.5, 1] }}
               transition={{ 
                 duration: 0.8, 
@@ -776,12 +785,12 @@ export default function Index() {
         transition={{ duration: 0.5 }}
         viewport={{ once: false }}
       >
-        {/* Simplified footer space elements - just a few asteroids */}
-        <AsteroidImage className="absolute left-[8%] bottom-8 z-10 opacity-70 scale-75" />
-        <Asteroid3Image className="absolute right-[10%] bottom-16 z-10 opacity-80 scale-75" />
-        <Asteroid2Image className="absolute left-[35%] bottom-20 z-10 opacity-60 scale-75" />
+        {/* Footer space elements - some visible on all devices */}
+        <AsteroidImage className="hidden md:block absolute left-[8%] bottom-8 z-10 opacity-70 scale-75" />
+        <Asteroid3Image className="absolute right-[10%] bottom-16 z-10 opacity-40 md:opacity-80 scale-50 md:scale-75" />
+        <Asteroid2Image className="absolute left-[35%] bottom-28 md:bottom-20 z-10 opacity-30 md:opacity-60 scale-40 md:scale-75" />
 
-        <Saturn2Image className="absolute left-[60%] bottom-10 z-10 opacity-50 scale-75" />
+        <Saturn2Image className="hidden md:block absolute left-[60%] bottom-10 z-10 opacity-50 scale-75" />
         
         <p className="text-sm text-white/60 font-pixel-secondary">
           &copy; 2025 NEBULAX

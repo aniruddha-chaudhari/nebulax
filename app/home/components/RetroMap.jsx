@@ -67,6 +67,7 @@ const RetroMap = ({ games, onSelectGame }) => {
       { id: 'skull', x: 85, y: 75, emoji: '💀' }
     ];
     
+    // Mouse event handlers
     const handleStartDrag = (e) => {
       setIsDragging(true);
       setDragStart({
@@ -98,6 +99,43 @@ const RetroMap = ({ games, onSelectGame }) => {
     };
     
     const handleEndDrag = () => {
+      setIsDragging(false);
+    };
+    
+    // Touch event handlers for mobile
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches[0]) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.touches[0].clientX - mapPosition.x,
+          y: e.touches[0].clientY - mapPosition.y
+        });
+      }
+    };
+    
+    const handleTouchMove = (e) => {
+      if (isDragging && e.touches && e.touches[0]) {
+        e.preventDefault(); // Prevent screen scrolling while dragging the map
+        
+        let newX = e.touches[0].clientX - dragStart.x;
+        let newY = e.touches[0].clientY - dragStart.y;
+        
+        // Calculate min values (these are negative numbers)
+        const minX = containerBounds.width - mapBounds.width;
+        const minY = containerBounds.height - mapBounds.height;
+        
+        // Constrain position within bounds
+        newX = Math.min(0, Math.max(minX, newX));
+        newY = Math.min(0, Math.max(minY, newY));
+        
+        setMapPosition({
+          x: newX,
+          y: newY
+        });
+      }
+    };
+    
+    const handleTouchEnd = () => {
       setIsDragging(false);
     };
     
@@ -142,6 +180,9 @@ const RetroMap = ({ games, onSelectGame }) => {
         onMouseMove={handleDrag}
         onMouseUp={handleEndDrag}
         onMouseLeave={handleEndDrag}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         ref={mapRef}
       >
         {terrainTypes.map((terrain, i) => (

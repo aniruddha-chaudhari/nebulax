@@ -28,12 +28,10 @@ const GameGrid = ({ games }) => {
           </PixelButton>
         </motion.div>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {games.map((game, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">        {games.map((game, index) => (
           <motion.div
             key={game.id}
-            className="relative"
+            className="relative flex md:block justify-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}

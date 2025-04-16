@@ -15,9 +15,19 @@ export class Player {
       this.sprite.setOrigin(0.5, 1); // Set origin to bottom center for easy ground alignment
       this.sprite.setCollideWorldBounds(true);
       
-      // Set up physics body with better collision box
-      this.sprite.body.setSize(12, 28); // Slightly narrower hitbox for better collision detection
-      this.sprite.body.setOffset(10, 4); // Center the hitbox on the sprite
+      // Calculate scale based on screen height to make player proportional on larger screens
+      // but not too small on smaller screens
+      const minScale = 0.3;
+      const maxScale = 0.6;
+      const screenScale = Math.max(1, scene.scale.height / 600); 
+      const playerScale = Math.min(maxScale, Math.max(minScale, minScale * screenScale));
+      
+      // Set appropriate scale for the image sprites based on screen size
+      this.sprite.setScale(playerScale);
+      
+      // Set up physics body with better collision box for image sprites
+      this.sprite.body.setSize(this.sprite.width * 0.7, this.sprite.height * 0.9); 
+      this.sprite.body.setOffset(this.sprite.width * 0.15, this.sprite.height * 0.1);
       
       // Set up animations
       this.createAnimations();
@@ -28,8 +38,11 @@ export class Player {
       // Player state
       this.isDucking = false;
       this.isJumping = false;
+      this.jumpStarted = false;
+      this.landingCounter = 0; // Counter to ensure stable ground detection
+      this.groundContactFrames = 5; // Need this many frames of ground contact to confirm landing
       
-      console.log("Player created successfully at", x, y);
+      console.log("Player created successfully at", x, y, "with scale", playerScale);
     } catch (err) {
       console.error("Error creating player:", err);
       throw err;
@@ -43,16 +56,11 @@ export class Player {
         // Apply upward velocity
         this.sprite.setVelocityY(-500);
         this.isJumping = true;
+        this.jumpStarted = true; // Flag to track that we've initiated a jump
         
         // Play jump animation
         this.sprite.setTexture("player-jump");
-        
-        // Reset to standing position after jump
-        this.scene.time.delayedCall(500, () => {
-          if (this.isJumping) {
-            this.sprite.setTexture("player");
-          }
-        });
+        console.log("Jump started!");
       }
     } catch (err) {
       console.error("Error during jump:", err);
@@ -68,9 +76,12 @@ export class Player {
         // Change to ducking sprite
         this.sprite.setTexture("player-duck");
         
-        // Update hitbox for duck position - make it shorter but wider
-        this.sprite.body.setSize(16, 16);
-        this.sprite.body.setOffset(8, 16);
+        // Update hitbox for duck position - make it shorter but wider for the duck image
+        const spriteWidth = this.sprite.width;
+        const spriteHeight = this.sprite.height;
+        
+        this.sprite.body.setSize(spriteWidth * 0.8, spriteHeight * 0.6);
+        this.sprite.body.setOffset(spriteWidth * 0.1, spriteHeight * 0.4);
         
         // Stand up after a short time
         this.scene.time.delayedCall(500, () => {
@@ -92,9 +103,12 @@ export class Player {
         // Change back to standing sprite
         this.sprite.setTexture("player");
         
-        // Reset hitbox to standing size
-        this.sprite.body.setSize(12, 28);
-        this.sprite.body.setOffset(10, 4);
+        // Reset hitbox to standing size for the normal image
+        const spriteWidth = this.sprite.width;
+        const spriteHeight = this.sprite.height;
+        
+        this.sprite.body.setSize(spriteWidth * 0.7, spriteHeight * 0.9);
+        this.sprite.body.setOffset(spriteWidth * 0.15, spriteHeight * 0.1);
       }
     } catch (err) {
       console.error("Error during stand up:", err);
@@ -103,18 +117,57 @@ export class Player {
   
   update() {
     try {
-      // Check if player has landed after jumping
-      if (this.isJumping && this.sprite.body.touching.down) {
-        this.isJumping = false;
-        
-        // Return to standing position if not ducking
-        if (!this.isDucking) {
-          this.sprite.setTexture("player");
-        }
-      }
-      
       // Move player with ground (keep x position constant)
       this.sprite.setX(100);
+      
+      // Debug Y velocity
+      if (this.isJumping) {
+        console.log(`Y velocity: ${this.sprite.body.velocity.y}`);
+      }
+      
+      // Check if player is on the ground
+      const onGround = this.sprite.body.touching.down;
+      
+      // Jumping state management with more stable landing detection
+      if (this.isJumping) {
+        // Always show jump texture while jumping is true
+        this.sprite.setTexture("player-jump");
+        
+        // Check for landing with a counter to avoid flickering
+        if (onGround) {
+          this.landingCounter++;
+          if (this.landingCounter >= this.groundContactFrames) {
+            console.log(`Landing confirmed after ${this.landingCounter} frames`);
+            this.isJumping = false;
+            this.jumpStarted = false;
+            this.landingCounter = 0;
+            
+            // If not ducking, update to standing sprite and hitbox
+            if (!this.isDucking) {
+              this.sprite.setTexture("player");
+              
+              // Reset hitbox to standing size
+              const spriteWidth = this.sprite.width;
+              const spriteHeight = this.sprite.height;
+              this.sprite.body.setSize(spriteWidth * 0.7, spriteHeight * 0.9);
+              this.sprite.body.setOffset(spriteWidth * 0.15, spriteHeight * 0.1);
+            }
+          }
+        } else {
+          // Reset counter if player is not touching ground
+          this.landingCounter = 0;
+        }
+      } else if (this.isDucking) {
+        // Player is ducking
+        this.sprite.setTexture("player-duck");
+      } else if (!onGround) {
+        // If we're not on ground and not explicitly jumping (like falling off a platform)
+        // Also show jump texture
+        this.sprite.setTexture("player-jump");
+      } else {
+        // Player is in normal state
+        this.sprite.setTexture("player");
+      }
     } catch (err) {
       console.error("Error in player update:", err);
     }
