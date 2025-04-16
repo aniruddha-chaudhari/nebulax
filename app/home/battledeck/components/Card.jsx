@@ -109,18 +109,20 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
         <h3 className="font-pixel text-[8px] text-center mb-1 text-white line-clamp-2 w-full overflow-hidden">{card.name}</h3>
         
         {/* Card Type & Power */}
-        <div className={`text-center mt-1 px-1 py-0.5 rounded-sm text-[8px] font-vt323
+        <div className={`text-center mt-1 px-1 py-0.5 rounded-sm font-vt323
           ${card.type === 'Attack' ? 'bg-destructive/20 text-destructive' : 
             card.type === 'Defense' ? 'bg-primary/20 text-primary' : 
             'bg-secondary/20 text-secondary'}`}
         >
-          {card.type} {card.power ? `(${card.power})` : ''}
+          <span className="text-[13px] font-medium">{card.type}</span>{' '}
+          {card.power ? (
+            <span className="text-[12px] font-semibold">({card.power})</span>
+          ) : (
+            ''
+          )}
         </div>
         
-        {/* Card Effect - Truncated */}
-        <p className="text-[7px] text-center mt-1 text-muted-foreground px-1 line-clamp-3 overflow-hidden">
-          {card.effect}
-        </p>
+       
       </div>
 
       {/* Visual indicator for touch dragging */}
