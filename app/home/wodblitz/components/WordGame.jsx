@@ -168,8 +168,7 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
+    <div className="w-full max-w-5xl mx-auto">      <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-2">
         {/* Game Header - Left Side */}
         <header className="w-full sm:w-auto flex items-center gap-3">
           <Link href="/home" className="inline-block">
@@ -183,14 +182,37 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
           </div>
         </header>
 
-        {/* Stats Area - Right Side */}
-        <div className="flex gap-2 items-start">
+        {/* Stats, Timer and Controls - Right Side */}
+        <div className="flex items-center gap-2">
+          {/* Game controls */}
+          <div className="flex-shrink-0">
+            {!isGameActive ? (
+              <button 
+                onClick={startGame}
+                className="retro-button text-xs py-1 px-2"
+                disabled={isGameActive}
+              >
+                {gameOver ? 'PLAY AGAIN' : 'START'}
+              </button>
+            ) : (
+              <button
+                onClick={getHint}
+                className="retro-button text-xs py-1 px-2 bg-amber-700"
+                disabled={hintsUsed >= 3}
+              >
+                HINT ({3 - hintsUsed} LEFT)
+              </button>
+            )}
+          </div>
+          
+          {/* Timer */}
           <GameTimer 
             initialTime={gameTime} 
             onTimeUp={handleTimeUp} 
             isGameActive={isGameActive} 
           />
           
+          {/* Score display */}
           {!isGameActive && (
             <div className="pixel-panel flex gap-2 p-1">
               <div className="text-center">
@@ -202,31 +224,6 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
                 <p className="font-pixel text-sm">{score}</p>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Controls row */}
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex gap-1">
-          {!isGameActive && (
-            <button 
-              onClick={startGame}
-              className="retro-button text-xs py-1 px-2"
-              disabled={isGameActive}
-            >
-              {gameOver ? 'PLAY AGAIN' : 'START'}
-            </button>
-          )}
-          
-          {isGameActive && (
-            <button
-              onClick={getHint}
-              className="retro-button text-xs py-1 px-2 bg-amber-700"
-              disabled={hintsUsed >= 3}
-            >
-              HINT ({3 - hintsUsed} LEFT)
-            </button>
           )}
         </div>
       </div>

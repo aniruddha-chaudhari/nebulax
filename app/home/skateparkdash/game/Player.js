@@ -76,12 +76,13 @@ export class Player {
         // Change to ducking sprite
         this.sprite.setTexture("player-duck");
         
-        // Update hitbox for duck position - make it shorter but wider for the duck image
+        // Update hitbox for duck position - make it MUCH shorter for the duck image
         const spriteWidth = this.sprite.width;
         const spriteHeight = this.sprite.height;
         
-        this.sprite.body.setSize(spriteWidth * 0.8, spriteHeight * 0.6);
-        this.sprite.body.setOffset(spriteWidth * 0.1, spriteHeight * 0.4);
+        // Reduced height (from 0.6 to 0.4) and repositioned offset to make ducking hitbox much smaller
+        this.sprite.body.setSize(spriteWidth * 0.8, spriteHeight * 0.4);
+        this.sprite.body.setOffset(spriteWidth * 0.1, spriteHeight * 0.6);
         
         // Stand up after a short time
         this.scene.time.delayedCall(500, () => {

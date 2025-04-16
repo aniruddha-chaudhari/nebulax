@@ -142,19 +142,18 @@ export default function Home() {
       <ScanLines />
       
       <div className="relative z-10">
-        <header className="p-4 flex justify-between items-center">
-          <Link href="/">
+        <header className="p-4 flex justify-between items-center">          <Link href="/">
             <motion.div 
               className="flex items-center gap-2 text-white"
               whileHover={{ x: -4 }}
               whileTap={{ scale: 0.95 }}
             >
               <ArrowLeft size={20} />
-              <span className="font-pixel text-sm">MAIN MENU</span>
+              <span className="font-pixel text-sm"><span className="hidden md:inline">MAIN </span>MENU</span>
             </motion.div>
           </Link>
           
-          <h1 className="font-pixel text-lg md:text-2xl text-white">NEBULAX ARCADE</h1>
+          <h1 className="font-pixel text-lg md:text-2xl text-white">NEBULAX<span className="hidden md:inline"> ARCADE</span></h1>
           
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">

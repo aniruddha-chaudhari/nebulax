@@ -10,7 +10,10 @@ const LetterGridCell = ({
   isHint,
   onMouseDown,
   onMouseEnter,
-  onMouseUp
+  onMouseUp,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd
 }) => {
   let cellClass = 'grid-cell font-pixel font-bold text-lg md:text-xl flex items-center justify-center';
   
@@ -29,6 +32,24 @@ const LetterGridCell = ({
       onMouseDown={() => onMouseDown(rowIndex, colIndex)}
       onMouseEnter={() => onMouseEnter(rowIndex, colIndex)}
       onMouseUp={onMouseUp}
+      onTouchStart={(e) => {
+        e.preventDefault(); // Prevent default to avoid unwanted behaviors
+        onTouchStart(rowIndex, colIndex);
+      }}
+      onTouchMove={(e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (element && element.dataset && element.dataset.row !== undefined) {
+          const touchRow = parseInt(element.dataset.row);
+          const touchCol = parseInt(element.dataset.col);
+          onTouchMove(touchRow, touchCol);
+        }
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        onTouchEnd();
+      }}
       data-row={rowIndex}
       data-col={colIndex}
       data-hint={isHint ? 'true' : 'false'}

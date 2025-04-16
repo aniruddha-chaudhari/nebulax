@@ -173,6 +173,7 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
   const [hintCells, setHintCells] = useState([]);
   const [wordsInGrid, setWordsInGrid] = useState([]);
   const gridInitializedRef = React.useRef(false);
+  const isTouchSelectionRef = React.useRef(false);
 
   // Expose methods to the parent component through ref
   React.useImperativeHandle(ref, () => ({
@@ -221,13 +222,18 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
     const foundWords = findWordsInGrid(newGrid);
     setWordsInGrid(foundWords);
   };
-
-  // Start word selection
+  // Start word selection (works for both mouse and touch)
   const handleMouseDown = (rowIndex, colIndex) => {
     setIsSelecting(true);
     const newSelectedCells = [{ row: rowIndex, col: colIndex }];
     setSelectedCells(newSelectedCells);
     setSelectedWord(grid[rowIndex][colIndex]);
+  };
+
+  // Handle touch start (same as mouse down)
+  const handleTouchStart = (rowIndex, colIndex) => {
+    isTouchSelectionRef.current = true;
+    handleMouseDown(rowIndex, colIndex);
   };
 
   // Continue word selection
@@ -252,7 +258,15 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
     }
   };
 
-  // End word selection
+  // Handle touch move (similar to mouse enter but for touch)
+  const handleTouchMove = (rowIndex, colIndex) => {
+    if (!isTouchSelectionRef.current) return;
+    
+    // Use the same logic as mouse enter for consistency
+    handleMouseEnter(rowIndex, colIndex);
+  };
+
+  // End word selection (works for both mouse and touch)
   const handleMouseUp = () => {
     if (isSelecting) {
       setIsSelecting(false);
@@ -267,6 +281,12 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
         setSelectedWord('');
       }, 300);
     }
+  };
+
+  // Handle touch end (same as mouse up)
+  const handleTouchEnd = () => {
+    isTouchSelectionRef.current = false;
+    handleMouseUp();
   };
 
   return (
@@ -285,8 +305,7 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
       <div className="letter-grid-container p-1" draggable="false">
         <div className="grid grid-cols-10 gap-1" draggable="false">
           {grid.map((row, rowIndex) =>
-            row.map((letter, colIndex) => (
-              <LetterGridCell
+            row.map((letter, colIndex) => (            <LetterGridCell
                 key={`${rowIndex}-${colIndex}`}
                 letter={letter}
                 rowIndex={rowIndex}
@@ -300,6 +319,9 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
                 onMouseDown={handleMouseDown}
                 onMouseEnter={handleMouseEnter}
                 onMouseUp={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
               />
             ))
           )}

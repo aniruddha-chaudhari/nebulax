@@ -53,11 +53,15 @@ export class MainScene extends Phaser.Scene {
       this.load.image('player-duck', '/skatedash/duck.png');
       this.load.image('player-jump', '/skatedash/jump.png');
       
-      // Create obstacle sprites and background sprites
-      this.createObstacleSprites();
+      // Load obstacle images from public folder
+      this.load.image('bench', '/skatedash/obs.png');
+      this.load.image('sign', '/skatedash/obs2.png');
+      this.load.image('duckobstacle', '/skatedash/duckobstacle.png');
+      
+      // Create background sprites
       this.createBackgroundSprites();
       
-      // Mark that textures were created successfully
+      // Mark that textures were loaded successfully
       this.texturesCreated = true;
       console.log("Game textures loaded successfully");
     } catch (err) {
@@ -346,93 +350,104 @@ export class MainScene extends Phaser.Scene {
     }
     
     console.log("Spawning obstacle - game active:", this.gameActive);
-    console.log("Game dimensions:", this.scale.width, "x", this.scale.height);
     
-    // Check if textures exist
-    if (!this.textures.exists('bench') || !this.textures.exists('sign')) {
-      console.error("Missing obstacle textures!");
-      console.log("Available textures:", this.textures.list.map(t => t.key).join(', '));
-      // Create fallback textures if missing
-      this.createObstacleSprites();
+    // Make bench obstacle (obs1) much rarer and sign (obs2) much more common
+    // Weighted obstacle type selection (0 = bench/obs - very rare, 1 = sign/obs2 - common, 2 = duckobstacle - moderate)
+    let obstacleType;
+    const randomValue = Math.random();
+    if (randomValue < 0.1) { // Only 10% chance for bench obstacle (obs1) - very rare
+      obstacleType = 0; // bench/obs
+    } else if (randomValue < 0.7) { // 60% chance for sign (obs2) - very common
+      obstacleType = 1; // sign/obs2
+    } else {
+      obstacleType = 2; // duckobstacle - 30% chance
     }
-    
-    // Randomly select obstacle type (0 = bench, 1 = overhead sign)
-    const obstacleType = Phaser.Math.Between(0, 1);
     
     let obstacle;
     
-    // Calculate scale based on screen height to make obstacles proportionally sized
-    const baseScale = 3.0;
-    const screenScale = Math.max(1, this.scale.height / 600); // Base scale on a 600px reference height
-    const finalScale = baseScale * screenScale;
+    // Calculate scale based on screen height - decreased size for obs and obs2
+    const minScale = 0.25;
+    const maxScale = 0.45;
+    const screenScale = Math.max(1, this.scale.height / 600);
+    const finalScale = Math.min(maxScale, Math.max(minScale, minScale * screenScale));
+    
+    // Smaller scale specifically for obs and obs2
+    const obsMinScale = 0.15;  // Smaller min scale for obs obstacles
+    const obsMaxScale = 0.25;  // Smaller max scale for obs obstacles
+    const obsScale = Math.min(obsMaxScale, Math.max(obsMinScale, obsMinScale * screenScale));
     
     if (obstacleType === 0) {
-      // Bench - player needs to jump over it
+      // Ground obstacle (bench/obs) - player needs to jump over it
+      // Position it exactly on the ground
       obstacle = this.obstacles.create(
         this.scale.width + 100,
-        this.scale.height - 50,
-        "bench"
+        this.scale.height - 20, // Align to the ground (which is at height - 20)
+        "bench" // obs.png sprite
       );
-      obstacle.setOrigin(0.5, 1);
-      obstacle.setScale(finalScale);
-      obstacle.body.setSize(30, 20);
-      obstacle.body.setOffset(0, 10);
-      console.log("Created bench obstacle at", obstacle.x, obstacle.y);
-    } else {
-      // Overhead sign - player needs to duck under it
-      // Position sign higher for larger screens
-      const signHeight = this.scale.height - Math.min(100, this.scale.height * 0.25);
+      obstacle.setOrigin(0.5, 1); // Set origin to bottom center
+      obstacle.setScale(obsScale); // Use smaller scale for obs
+      
+      // Set collision box according to the sprite's actual size
+      const width = obstacle.width * 0.7;
+      const height = obstacle.height * 0.7;
+      obstacle.body.setSize(width, height);
+      obstacle.body.setOffset(obstacle.width * 0.15, obstacle.height * 0.3);
+      console.log("Created bench obstacle (obs.png) at", obstacle.x, obstacle.y);
+    } else if (obstacleType === 1) {
+      // Overhead sign (obs2) - player needs to duck under it
+      // Position it at head height so player needs to duck
+      const signHeight = this.scale.height - 100; // Higher position to force ducking
       obstacle = this.obstacles.create(
         this.scale.width + 100,
         signHeight,
-        "sign"
+        "sign" // obs2.png sprite
+      );
+      obstacle.setOrigin(0.5, 0.5); // Center origin for overhead obstacle
+      obstacle.setScale(obsScale); // Use smaller scale for obs2
+      
+      // Set collision box according to the sprite's actual size
+      const width = obstacle.width * 0.7;
+      const height = obstacle.height * 0.7;
+      obstacle.body.setSize(width, height);
+      obstacle.body.setOffset(obstacle.width * 0.15, obstacle.height * 0.15);
+      console.log("Created sign obstacle (obs2.png) at", obstacle.x, obstacle.y);
+    } else {
+      // Duck-specific obstacle - using the duckobstacle.png
+      // Position it just high enough for a ducking player to pass under
+      const obstacleHeight = this.scale.height - 160; // Adjusted from -180 to -160 for a tighter gap
+      obstacle = this.obstacles.create(
+        this.scale.width + 100,
+        obstacleHeight,
+        "duckobstacle"
       );
       obstacle.setOrigin(0.5, 0.5);
-      obstacle.setScale(finalScale);
-      obstacle.body.setSize(20, 40); // Taller collision box
-      console.log("Created sign obstacle at", obstacle.x, obstacle.y);
+      obstacle.setScale(finalScale); // Keep normal scale for duck obstacle
+      
+      // Set collision box according to the sprite's actual size
+      const width = obstacle.width * 0.7;
+      const height = obstacle.height * 0.7;
+      obstacle.body.setSize(width, height);
+      obstacle.body.setOffset(obstacle.width * 0.15, obstacle.height * 0.15);
+      console.log("Created duck obstacle (duckobstacle.png) at", obstacle.x, obstacle.y);
     }
-    
-    // Make obstacle EXTREMELY visible for debugging
-    obstacle.setTint(0xff00ff); // Bright magenta
-    
-    // Draw a rectangle around the obstacle to make it more visible
-    const graphics = this.add.graphics();
-    graphics.lineStyle(4, 0xff0000, 1);
-    graphics.strokeRect(obstacle.x - 20, obstacle.y - 20, 40, 40);
-    graphics.setDepth(2000);
-    
-    // Store the debug graphics reference on the obstacle for cleanup
-    obstacle.debugGraphics = graphics;
     
     // Ensure physics body is enabled
     obstacle.body.enable = true;
     
-    // Set obstacle properties - MAKE VELOCITY MORE EXPLICIT
+    // Set obstacle properties
     obstacle.setVelocityX(-this.speed);
-    obstacle.body.velocity.x = -this.speed; // Redundant but ensures velocity is set
+    obstacle.body.velocity.x = -this.speed;
     
-    // Ensure the obstacle is affected by physics
+    // Ensure the obstacle is affected by physics but not by gravity
     obstacle.setImmovable(true);
-    obstacle.body.allowGravity = false;  // Don't let gravity affect obstacles
+    obstacle.body.allowGravity = false;
     
-    // Make sure the obstacle is on top with very high depth
-    obstacle.setDepth(1000);
-    
-    // Log the obstacle object
-    console.log("Obstacle details:", {
-      x: obstacle.x,
-      y: obstacle.y,
-      visible: obstacle.visible,
-      active: obstacle.active,
-      texture: obstacle.texture.key,
-      velocityX: obstacle.body.velocity.x,
-      physicsEnabled: obstacle.body.enable,
-      scale: obstacle.scale
-    });
+    // Make sure the obstacle is on top with appropriate depth
+    obstacle.setDepth(100);
     
     // Schedule next obstacle with a new non-looping timer
-    const delay = Phaser.Math.Between(1500, 3000);
+    // Increased delay range to make obstacles appear later
+    const delay = Phaser.Math.Between(2500, 4000); // Increased from 1500-3000
     if (this.obstacleTimer) {
       this.obstacleTimer.remove();
     }
