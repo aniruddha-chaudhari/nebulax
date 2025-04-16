@@ -50,8 +50,7 @@ const RetroMap = ({ games, onSelectGame }) => {
       { id: 'cave', color: '#5A5353', name: 'Dark Cavern' },
       { id: 'castle', color: '#A186AA', name: 'Royal Castle' }
     ];
-    
-    const mapElements = [
+      const mapElements = [
       { id: 'tree1', x: 15, y: 25, emoji: '🌲' },
       { id: 'tree2', x: 25, y: 15, emoji: '🌲' },
       { id: 'tree3', x: 40, y: 25, emoji: '🌲' },
@@ -64,6 +63,11 @@ const RetroMap = ({ games, onSelectGame }) => {
       { id: 'castle', x: 30, y: 50, emoji: '🏰' },
       { id: 'house', x: 45, y: 15, emoji: '🏠' },
       { id: 'chest', x: 55, y: 60, emoji: '📦' },
+      { id: 'chest_gold', x: 35, y: 40, emoji: '💰' },
+      { id: 'chest_treasure', x: 20, y: 45, emoji: '🧰' },
+      { id: 'chest_diamond', x: 65, y: 75, emoji: '💎' },
+      { id: 'chest_magic', x: 90, y: 30, emoji: '✨' },
+      { id: 'chest_hidden', x: 15, y: 85, emoji: '🗝️' },
       { id: 'crystal', x: 25, y: 70, emoji: '💎' },
       { id: 'skull', x: 85, y: 75, emoji: '💀' }
     ];
@@ -199,19 +203,30 @@ const RetroMap = ({ games, onSelectGame }) => {
             {terrain.name}
           </div>
         ))}
-        
-        {mapElements.map(element => (
-          <div 
+          {mapElements.map(element => (
+          <motion.div 
             key={element.id} 
-            className="absolute text-2xl"
+            className={`absolute text-2xl ${element.id.includes('chest') ? 'cursor-pointer z-20' : ''}`}
             style={{ 
               top: `${element.y}%`, 
               left: `${element.x}%`,
               transform: 'translate(-50%, -50%)'
             }}
+            whileHover={element.id.includes('chest') ? { 
+              scale: 1.2,
+              rotate: [0, -5, 5, -5, 0],
+              transition: { duration: 0.5 }
+            } : {}}
+            animate={element.id.includes('chest') ? { 
+              y: [0, -3, 0],
+              transition: { 
+                repeat: Infinity, 
+                duration: 2 + Math.random() * 2
+              }
+            } : {}}
           >
             {element.emoji}
-          </div>
+          </motion.div>
         ))}
         
         {clouds.map(cloud => (
