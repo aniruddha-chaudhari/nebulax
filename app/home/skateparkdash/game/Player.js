@@ -84,12 +84,7 @@ export class Player {
         this.sprite.body.setSize(spriteWidth * 0.8, spriteHeight * 0.4);
         this.sprite.body.setOffset(spriteWidth * 0.1, spriteHeight * 0.6);
         
-        // Stand up after a short time
-        this.scene.time.delayedCall(500, () => {
-          if (this.isDucking) {
-            this.standUp();
-          }
-        });
+        // Remove the automatic stand up after 500ms - we'll now rely on the keyup event
       }
     } catch (err) {
       console.error("Error during duck:", err);

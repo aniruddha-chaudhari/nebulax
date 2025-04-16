@@ -48,10 +48,9 @@ const BattleDeck = () => {
               <GameBoard />
               <HandArea />
             </div>
-            
-            <footer className="mt-auto pt-6 text-center">
+              <footer className="mt-auto pt-6 text-center">
               <p className="font-vt323 text-muted-foreground text-sm">
-                Battle Decks v1.0 | A game of strategy and skill
+                
               </p>
             </footer>
           </CRTEffect>

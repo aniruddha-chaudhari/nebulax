@@ -31,29 +31,27 @@ const PlayerStats = ({ player, isOpponent = false, compactView = false }) => {
         </div>
 
         {/* Health Bar - Compact */}
-        <div className="flex items-center gap-1">
-          <Heart size={10} className="text-destructive flex-shrink-0" />
+        <div className="flex items-center gap-1">          <Heart size={10} className="text-red-500 flex-shrink-0" />
           <div className="flex-grow h-2 bg-muted rounded-sm overflow-hidden">
             <div 
-              className="h-full bg-destructive"
+              className="h-full bg-red-500"
               style={{ width: `${healthPercentage}%` }}
             ></div>
           </div>
-          <span className="font-vt323 text-[10px] text-white min-w-[30px] text-right flex-shrink-0">
+          <span className="font-vt323 text-[10px] text-red-400 min-w-[30px] text-right flex-shrink-0">
             {player.health}
           </span>
         </div>
 
         {/* Mana Bar - Compact */}
-        <div className="flex items-center gap-1">
-          <Droplet size={10} className="text-primary flex-shrink-0" />
+        <div className="flex items-center gap-1">          <Droplet size={10} className="text-blue-500 flex-shrink-0" />
           <div className="flex-grow h-2 bg-muted rounded-sm overflow-hidden">
             <div 
-              className="h-full bg-primary"
+              className="h-full bg-blue-500"
               style={{ width: `${manaPercentage}%` }}
             ></div>
           </div>
-          <span className="font-vt323 text-[10px] text-white min-w-[30px] text-right flex-shrink-0">
+          <span className="font-vt323 text-[10px] text-blue-400 min-w-[30px] text-right flex-shrink-0">
             {player.mana}
           </span>
         </div>
@@ -87,33 +85,29 @@ const PlayerStats = ({ player, isOpponent = false, compactView = false }) => {
             )}
           </div>
         </div>
-      </div>
-
-      {/* Health Bar */}
+      </div>      {/* Health Bar */}
       <div className="flex items-center gap-1">
-        <Heart size={12} className="text-destructive flex-shrink-0" />
+        <Heart size={12} className="text-red-500 flex-shrink-0" />
         <div className="flex-grow h-3 bg-muted rounded-sm overflow-hidden">
           <div 
-            className="h-full bg-destructive"
+            className="h-full bg-red-500"
             style={{ width: `${healthPercentage}%` }}
           ></div>
         </div>
-        <span className="font-vt323 text-xs text-white min-w-[40px] text-right flex-shrink-0">
-          {player.health}/30
+        <span className="font-vt323 text-xs min-w-[40px] text-right flex-shrink-0">
+          <span className="text-red-400">{player.health}</span><span className="text-white">/30</span>
         </span>
-      </div>
-
-      {/* Mana Bar */}
+      </div>      {/* Mana Bar */}
       <div className="flex items-center gap-1">
-        <Droplet size={12} className="text-primary flex-shrink-0" />
+        <Droplet size={12} className="text-blue-500 flex-shrink-0" />
         <div className="flex-grow h-3 bg-muted rounded-sm overflow-hidden">
           <div 
-            className="h-full bg-primary"
+            className="h-full bg-blue-500"
             style={{ width: `${manaPercentage}%` }}
           ></div>
         </div>
-        <span className="font-vt323 text-xs text-white min-w-[40px] text-right flex-shrink-0">
-          {player.mana}/{player.maxMana}
+        <span className="font-vt323 text-xs min-w-[40px] text-right flex-shrink-0">
+          <span className="text-blue-400">{player.mana}</span><span className="text-white">/{player.maxMana}</span>
         </span>
       </div>
 

@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Trophy, Settings, Users, Star, Gamepad } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
+import Image from 'next/image';
 
 const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achievements }) => {
   return (
@@ -13,7 +14,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="font-pixel text-white text-xl mb-4">PLAYER HUB</h2>
+      <h2 className="font-pixel text-white text-xl mb-4 text-center md:text-left">PLAYER HUB</h2>
       
       <div className="flex flex-col items-center mb-4 relative">
         {/* Glow effect behind the profile */}
@@ -21,9 +22,18 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
         
         {/* Profile container with layered effects */}
         <div className="w-20 h-20 bg-gradient-to-br from-game-primary via-game-secondary to-game-accent rounded-lg pixel-borders-lg flex items-center justify-center transform hover:scale-105 transition-transform relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-800/80 to-white"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-800/80 to-transparent opacity-50"></div>
           <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-          <User size={36} className="text-white relative z-10" />
+          <div className="relative z-10 w-20 h-20">
+            <Image
+              src="/avatar.png"
+              alt="Player avatar"
+              width={80}
+              height={80}
+              className="object-cover"
+              priority
+            />
+          </div>
         </div>
         <h3 className="font-pixel text-white mt-3 text-shadow-lg">PLAYER_1</h3>
         <p className="font-pixel-secondary text-game-yellow text-shadow">Level 5</p>
@@ -96,7 +106,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
           whileTap={{ scale: 0.95 }}
         >
           <PixelButton color="primary" className="w-full flex items-center justify-center gap-2">
-            <User size={16} /> Profile
+            <User size={16} /> <span className="inline">Profile</span>
           </PixelButton>
         </motion.div>
         
@@ -105,15 +115,15 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
           whileTap={{ scale: 0.95 }}
         >
           <PixelButton color="accent" className="w-full flex items-center justify-center gap-2">
-            <Settings size={16} /> Settings
+            <Settings size={16} /> <span className="inline">Settings</span>
           </PixelButton>
         </motion.div>
       </div>
       
       {/* Achievements section */}
       <div className="mb-4">
-        <h3 className="font-pixel text-white text-lg mb-2 flex items-center gap-2">
-          <Trophy size={14} className="text-game-yellow" /> ACHIEVEMENTS
+        <h3 className="font-pixel text-white text-lg mb-2 flex items-center justify-center md:justify-start gap-2">
+          <Trophy size={14} className="text-game-yellow" /> <span>ACHIEVEMENTS</span>
         </h3>
         
         <div className="space-y-2 bg-game-dark/60 p-2 pixel-borders">
@@ -160,8 +170,8 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
       
       {/* Friends section */}
       <div className="mb-1">
-        <h3 className="font-pixel text-white text-lg mb-2 flex items-center gap-2">
-          <Users size={14} /> FRIENDS
+        <h3 className="font-pixel text-white text-lg mb-2 flex items-center justify-center md:justify-start gap-2">
+          <Users size={14} /> <span>FRIENDS</span>
         </h3>
         <div className="bg-game-dark/60 p-2 pixel-borders">
           {onlineFriends.map((friend, index) => (
@@ -172,9 +182,14 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <div className="w-6 h-6 flex items-center justify-center bg-game-primary/30 rounded-sm">
-                {friend.avatar}
-              </div>
+              <div className="w-6 h-6 flex items-center justify-center bg-game-primary/30 rounded-sm overflow-hidden relative">
+                <Image
+                  src={friend.avatar}
+                  alt={`${friend.name}'s avatar`}
+                  fill
+                  className="object-cover"
+                />
+                </div>
               <div>
                 <p className="text-white font-pixel-secondary text-xs">{friend.name}</p>
                 <p className="text-game-yellow text-xs">{friend.status}</p>

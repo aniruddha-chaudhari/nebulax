@@ -28,6 +28,9 @@ export class MainScene extends Phaser.Scene {
   gameActive = false;
   startMessage;
   
+  // Add a cooldown flag to prevent immediate restart
+  canRestart = true;
+  
   // Background layers
   backgroundLayers = [];
   
@@ -36,6 +39,12 @@ export class MainScene extends Phaser.Scene {
   
   // Track texture creation success
   texturesCreated = false;
+  
+  // Track the most recently spawned obstacle
+  lastObstacle = null;
+  
+  // Minimum distance between obstacles (in pixels)
+  minObstacleDistance = 300;
   
   constructor() {
     super({ key: "MainScene" });
@@ -215,7 +224,10 @@ export class MainScene extends Phaser.Scene {
     // Keyboard controls - bind methods properly
     this.input.keyboard.on("keydown-SPACE", () => this.handleJump(), this);
     this.input.keyboard.on("keydown-UP", () => this.handleJump(), this);
-    this.input.keyboard.on("keydown-DOWN", () => this.handleDuck(), this);
+    
+    // Track duck button state
+    this.input.keyboard.on("keydown-DOWN", () => this.handleDuckDown(), this);
+    this.input.keyboard.on("keyup-DOWN", () => this.handleDuckUp(), this);
     
     // Touch controls - using a single pointer down handler with swipe detection
     let startY = 0;
@@ -232,10 +244,20 @@ export class MainScene extends Phaser.Scene {
       }
     });
     
-    this.input.on("pointerup", (pointer) => {
+    // Track touch/swipe for ducking
+    this.input.on("pointermove", (pointer) => {
       const swipeDistance = pointer.y - startY;
-      if (swipeDistance > 50) {  // Swipe down threshold
-        this.handleDuck();
+      if (swipeDistance > 50 && this.gameActive) {  // Swipe down threshold
+        this.handleDuckDown();
+        // Store this as the new start so we don't trigger multiple times
+        startY = pointer.y;
+      }
+    });
+
+    this.input.on("pointerup", (pointer) => {
+      // End ducking when touch is released
+      if (this.gameActive && this.player.isDucking) {
+        this.handleDuckUp();
       }
     });
     
@@ -243,16 +265,24 @@ export class MainScene extends Phaser.Scene {
   }
   
   handleJump() {
-    if (!this.gameActive) {
+    // Only restart if cooldown has passed
+    if (!this.gameActive && this.canRestart) {
       this.resetGame();
-    } else {
+    } else if (this.gameActive) {
       this.player.jump();
     }
   }
   
-  handleDuck() {
+  // Split the duck handling into press and release actions
+  handleDuckDown() {
     if (this.gameActive) {
       this.player.duck();
+    }
+  }
+  
+  handleDuckUp() {
+    if (this.gameActive && this.player.isDucking) {
+      this.player.standUp();
     }
   }
   
@@ -294,6 +324,9 @@ export class MainScene extends Phaser.Scene {
       this
     );
     
+    // Reset obstacle tracking
+    this.lastObstacle = null;
+    
     // Start the game again
     this.startGame();
     
@@ -324,8 +357,32 @@ export class MainScene extends Phaser.Scene {
   handleCollision() {
     if (!this.gameActive) return;
     
+    // Get the colliding obstacle (the last argument from the overlap callback)
+    const obstacle = arguments[1];
+    
+    // Don't trigger collision if player is ducking and this is a duck obstacle
+    if (obstacle.isDuckObstacle && this.player.isDucking) {
+      console.log("Successfully ducked under obstacle!");
+      return; // Skip collision handling - player successfully ducked
+    }
+    
+    // Show specific message if this is a duck obstacle and player is jumping
+    if (obstacle.isDuckObstacle && this.player.isJumping) {
+      this.startMessage.setText("YOU SHOULD DUCK!\nTAP TO RESTART");
+    } else {
+      this.startMessage.setText("GAME OVER!\nTAP TO RESTART");
+    }
+    
     // Stop the game
     this.gameActive = false;
+    
+    // Set cooldown to prevent immediate restart
+    this.canRestart = false;
+    
+    // Allow restart after a delay (1200ms = 1.2 seconds)
+    this.time.delayedCall(1200, () => {
+      this.canRestart = true;
+    });
     
     // Stop spawning obstacles
     if (this.obstacleTimer) {
@@ -334,18 +391,35 @@ export class MainScene extends Phaser.Scene {
     }
     
     // Display game over message
-    this.startMessage.setText("GAME OVER!\nTAP TO RESTART");
     this.startMessage.setVisible(true);
     
     // Stop obstacles
     this.obstacles.getChildren().forEach((obstacle) => {
       obstacle.setVelocityX(0);
     });
+    
+    // Reset obstacle tracking
+    this.lastObstacle = null;
   }
   
   spawnObstacle() {
     if (!this.gameActive) {
       console.log("Not spawning obstacle - game not active");
+      return;
+    }
+    
+    // Check if the last obstacle is still too close
+    if (this.lastObstacle && 
+        this.lastObstacle.active && 
+        this.lastObstacle.x > this.scale.width - this.minObstacleDistance) {
+      console.log("Previous obstacle still too close, delaying spawn");
+      
+      // Schedule another attempt after a short delay
+      this.obstacleTimer = this.time.addEvent({
+        delay: 500, // Try again in 0.5 seconds
+        callback: () => this.spawnObstacle(),
+        loop: false
+      });
       return;
     }
     
@@ -364,7 +438,6 @@ export class MainScene extends Phaser.Scene {
     }
     
     let obstacle;
-    
     // Calculate scale based on screen height - decreased size for obs and obs2
     const minScale = 0.25;
     const maxScale = 0.45;
@@ -384,7 +457,7 @@ export class MainScene extends Phaser.Scene {
         this.scale.height - 20, // Align to the ground (which is at height - 20)
         "bench" // obs.png sprite
       );
-      obstacle.setOrigin(0.5, 1); // Set origin to bottom center
+      obstacle.setOrigin(0.5, 1); // Set origin to bottom center to align with ground
       obstacle.setScale(obsScale); // Use smaller scale for obs
       
       // Set collision box according to the sprite's actual size
@@ -394,15 +467,13 @@ export class MainScene extends Phaser.Scene {
       obstacle.body.setOffset(obstacle.width * 0.15, obstacle.height * 0.3);
       console.log("Created bench obstacle (obs.png) at", obstacle.x, obstacle.y);
     } else if (obstacleType === 1) {
-      // Overhead sign (obs2) - player needs to duck under it
-      // Position it at head height so player needs to duck
-      const signHeight = this.scale.height - 100; // Higher position to force ducking
+      // Sign obstacle (obs2) - now also on the ground like the bench
       obstacle = this.obstacles.create(
         this.scale.width + 100,
-        signHeight,
+        this.scale.height - 20, // Align to the ground (same as bench)
         "sign" // obs2.png sprite
       );
-      obstacle.setOrigin(0.5, 0.5); // Center origin for overhead obstacle
+      obstacle.setOrigin(0.5, 1); // Set origin to bottom center to align with ground
       obstacle.setScale(obsScale); // Use smaller scale for obs2
       
       // Set collision box according to the sprite's actual size
@@ -414,7 +485,7 @@ export class MainScene extends Phaser.Scene {
     } else {
       // Duck-specific obstacle - using the duckobstacle.png
       // Position it just high enough for a ducking player to pass under
-      const obstacleHeight = this.scale.height - 160; // Adjusted from -180 to -160 for a tighter gap
+      const obstacleHeight = this.scale.height - 135;// Raised slightly to make ducking easier
       obstacle = this.obstacles.create(
         this.scale.width + 100,
         obstacleHeight,
@@ -423,13 +494,24 @@ export class MainScene extends Phaser.Scene {
       obstacle.setOrigin(0.5, 0.5);
       obstacle.setScale(finalScale); // Keep normal scale for duck obstacle
       
-      // Set collision box according to the sprite's actual size
-      const width = obstacle.width * 0.7;
-      const height = obstacle.height * 0.7;
+      // Add a special property to identify this as a duck obstacle
+      obstacle.isDuckObstacle = true;
+      
+      // Create a more specific collision box for duck obstacles
+      // Make it narrower at the bottom to allow players to duck under more easily
+      const width = obstacle.width * 0.6; // Narrower width
+      const height = obstacle.height * 1.5; // Much taller (150% of sprite height)
+      
       obstacle.body.setSize(width, height);
-      obstacle.body.setOffset(obstacle.width * 0.15, obstacle.height * 0.15);
+      obstacle.body.setOffset(
+        obstacle.width * 0.2, // Center the collision box horizontally
+        -obstacle.height * 0.5 // Position the collision box higher up
+      );
       console.log("Created duck obstacle (duckobstacle.png) at", obstacle.x, obstacle.y);
     }
+    
+    // After creating the obstacle, store it as the last one
+    this.lastObstacle = obstacle;
     
     // Ensure physics body is enabled
     obstacle.body.enable = true;
@@ -446,7 +528,6 @@ export class MainScene extends Phaser.Scene {
     obstacle.setDepth(100);
     
     // Schedule next obstacle with a new non-looping timer
-    // Increased delay range to make obstacles appear later
     const delay = Phaser.Math.Between(2500, 4000); // Increased from 1500-3000
     if (this.obstacleTimer) {
       this.obstacleTimer.remove();
@@ -456,7 +537,6 @@ export class MainScene extends Phaser.Scene {
       callback: () => this.spawnObstacle(),
       loop: false
     });
-    
     console.log(`Next obstacle in ${delay}ms, current speed: ${this.speed}`);
     
     // Slower speed increment
@@ -565,7 +645,7 @@ export class MainScene extends Phaser.Scene {
     const backBuildings = this.add.tileSprite(
       0, groundLevel - 200, 
       this.scale.width, 200, 
-      "back-buildings"
+      "back-buildings" 
     ).setOrigin(0, 0);
     
     // Mid buildings - positioned relative to bottom of screen
@@ -602,7 +682,7 @@ export class MainScene extends Phaser.Scene {
       this.scale.height - 20, 
       this.scale.width, 
       40, 
-      0x3955b8
+      0x3955b8 
     );
     
     // Add physics to ground
@@ -614,7 +694,6 @@ export class MainScene extends Phaser.Scene {
       // Create pixel art data for player sprite
       const playerCanvas = this.textures.createCanvas("player", 32, 32);
       if (!playerCanvas) throw new Error("Failed to create player canvas");
-      
       const ctx = playerCanvas.getContext();
       if (!ctx) throw new Error("Failed to get canvas context");
       
@@ -639,7 +718,6 @@ export class MainScene extends Phaser.Scene {
       // Create ducking frame with similar error handling
       const duckCanvas = this.textures.createCanvas("player-duck", 32, 32);
       if (!duckCanvas) throw new Error("Failed to create duck canvas");
-      
       const duckCtx = duckCanvas.getContext();
       if (!duckCtx) throw new Error("Failed to get duck canvas context");
       
@@ -664,7 +742,6 @@ export class MainScene extends Phaser.Scene {
       // Create jumping frame with similar error handling
       const jumpCanvas = this.textures.createCanvas("player-jump", 32, 32);
       if (!jumpCanvas) throw new Error("Failed to create jump canvas");
-      
       const jumpCtx = jumpCanvas.getContext();
       if (!jumpCtx) throw new Error("Failed to get jump canvas context");
       
@@ -690,7 +767,6 @@ export class MainScene extends Phaser.Scene {
       playerCanvas.refresh();
       duckCanvas.refresh();
       jumpCanvas.refresh();
-      
       return true;
     } catch (err) {
       console.error("Error creating player sprites:", err);
@@ -702,7 +778,6 @@ export class MainScene extends Phaser.Scene {
     // Create bench obstacle
     const benchCanvas = this.textures.createCanvas("bench", 32, 32);
     const benchCtx = benchCanvas.getContext();
-    
     benchCtx.fillStyle = "#5b9ddb";  // Light blue
     benchCtx.fillRect(4, 20, 24, 4);  // Bench seat
     
@@ -713,7 +788,6 @@ export class MainScene extends Phaser.Scene {
     // Create overhead sign obstacle
     const signCanvas = this.textures.createCanvas("sign", 32, 32);
     const signCtx = signCanvas.getContext();
-    
     signCtx.fillStyle = "#f87b4a";  // Orange
     signCtx.fillRect(8, 4, 16, 12);  // Sign
     
@@ -730,7 +804,7 @@ export class MainScene extends Phaser.Scene {
       // Create two separate textures:
       // 1. A static sky texture with moon and stars (non-tiling)
       // 2. Building textures that will tile horizontally
-
+      
       // 1. Static sky background with moon and stars
       const skyCanvas = this.textures.createCanvas("sky-background", 640, 360);
       const skyCtx = skyCanvas.getContext();
@@ -868,7 +942,6 @@ export class MainScene extends Phaser.Scene {
       backBuildingsCanvas.refresh();
       midBuildingsCanvas.refresh();
       frontBuildingsCanvas.refresh();
-      
       return true;
     } catch (err) {
       console.error("Error creating background sprites:", err);

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Droplet, Sword, Shield, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDraggable = false }) => {
   // Standard drag start handler for desktop
@@ -32,15 +32,14 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
     
     // The actual drop handling will be in the GameBoard component
   };
-
   const getCardTypeIcon = () => {
     switch (card.type) {
       case 'Attack':
-        return <Sword size={14} className="text-destructive" />;
+        return <Image src="/battledeck/sword.png" width={16} height={16} alt="Attack" className="drop-shadow-sm" />;
       case 'Defense':
-        return <Shield size={14} className="text-primary" />;
+        return <Image src="/battledeck/shield.png" width={16} height={16} alt="Defense" className="drop-shadow-sm" />;
       case 'Special':
-        return <Sparkles size={14} className="text-secondary" />;
+        return <Image src="/battledeck/sparkle.png" width={16} height={16} alt="Special" className="drop-shadow-sm" />;
       default:
         return null;
     }
@@ -63,24 +62,40 @@ const Card = ({ card, isSelectable = false, isSelected = false, onClick, isDragg
 
   // Explicitly convert isDraggable to boolean to prevent hydration errors
   const draggableValue = Boolean(isDraggable);
+  // Get appropriate background image based on card type
+  const getCardBackground = () => {
+    switch (card.type) {
+      case 'Attack':
+        return 'url(/battledeck/redcard.png)';
+      case 'Special':
+        return 'url(/battledeck/purplecard.png)';
+      default:
+        return 'none'; // Default background for other card types
+    }
+  };
 
   return (
     <div 
-      className={`card relative w-[70px] sm:w-[80px] h-[110px] sm:h-[120px] bg-card p-2 rounded-sm cursor-default transition-all
+      className={`card relative w-[70px] sm:w-[80px] h-[110px] sm:h-[120px] p-2 rounded-sm cursor-default transition-all
         ${getCardBorderColor()}
         ${isSelectable ? 'cursor-pointer hover:scale-105' : ''} 
         ${isSelected ? 'scale-105 shadow-glow' : ''}
         ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}
         border-2`}
+      style={{
+        backgroundImage: getCardBackground(),
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundColor: card.type !== 'Attack' && card.type !== 'Special' ? 'var(--card)' : 'transparent'
+      }}
       onClick={isSelectable ? onClick : undefined}
       draggable={draggableValue}
       onDragStart={handleDragStart}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-    >
-      {/* Card Cost */}
+    >{/* Card Cost */}
       <div className="absolute top-1 left-1 flex items-center gap-1 bg-muted/80 rounded-sm px-1">
-        <Droplet size={10} className="text-primary" />
+        <Image src="/battledeck/droplet.png" width={10} height={10} alt="Cost" className="drop-shadow-sm" />
         <span className="font-pixel text-xs">{card.cost}</span>
       </div>
 

@@ -50,37 +50,47 @@ const GAMES = [
   },
   {
     id: 3,
-    name: "Skate Park Dash",
-    description: "Grind rails, perform tricks, and dash through vibrant skate parks.",
+    name: "Skate Dash",
+    description: "Grind rails, perform tricks, and dash through vibrant night.",
     category: "Platformer",
     isUnlocked: true,
     starsCollected: 0,
     totalStars: 3,
-    imageUrl: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=600&h=400&fit=crop",
+    imageUrl: "/skatedash/skatedash.png",
     mapX: 50,
     mapY: 70
-  },
-  {
+  },  {
     id: 4,
-    name: "Digital Realm",
-    description: "Navigate a neon-drenched cyberspace, solving intricate hacking puzzles.",
-    category: "Puzzle",
+    name: "Quizzy",
+    description: "Test your knowledge with this retro arcade quiz game. Collect points and compete for high scores.",
+    category: "Quiz",
+    isUnlocked: true,
+    starsCollected: 0,
+    totalStars: 3,
+    imageUrl: "/quizzy/quizzy.png",
+    mapX: 20,
+    mapY: 60
+  }, {
+    id: 5,
+    name: "Nebula Odyssey",
+    description: "Embark on an epic journey through the cosmos. Discover alien civilizations and navigate celestial challenges.",
+    category: "Adventure",
     isUnlocked: false,
     starsCollected: 0,
     totalStars: 3,
-    imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop",
-    mapX: 20,
-    mapY: 60
+    imageUrl: "/nebula.png",
+    mapX: 80,
+    mapY: 15
   }
 ];
 
 const ONLINE_FRIENDS = [
-  { id: 1, name: "PixelMaster", avatar: "👾", status: "Playing Battle Deck" },
-  { id: 2, name: "RetroGamer", avatar: "🎮", status: "Online" },
-  { id: 3, name: "ArcadeKing", avatar: "👑", status: "In menu" },
-  { id: 4, name: "NeoNinja", avatar: "🥷", status: "In match" },
-  { id: 5, name: "GameWizard", avatar: "🧙‍♂️", status: "Browsing store" },
-  { id: 6, name: "CyberCat", avatar: "🐱", status: "Idle" },
+  { id: 1, name: "PixelMaster", avatar: "/avatar1.png", status: "Playing Battle Deck" },
+  { id: 2, name: "RetroGamer", avatar: "/avatar2.png", status: "Online" },
+  { id: 3, name: "ArcadeKing", avatar: "/avatar3.png", status: "In menu" },
+  { id: 4, name: "NeoNinja", avatar: "/avatar4.png", status: "In match" },
+  { id: 5, name: "GameWizard", avatar: "/avatar5.png", status: "Browsing store" },
+  { id: 6, name: "CyberCat", avatar: "/avatar.png", status: "Idle" },
 ];
 
 
@@ -149,7 +159,7 @@ export default function Home() {
               whileTap={{ scale: 0.95 }}
             >
               <ArrowLeft size={20} />
-              <span className="font-pixel text-sm"><span className="hidden md:inline">MAIN </span>MENU</span>
+              <span className="font-pixel text-sm hidden md:inline"><span>MAIN </span>MENU</span>
             </motion.div>
           </Link>
           

@@ -44,39 +44,46 @@ export default function SkateboardDashPage() {
       <CRTEffect>
         <div className="container mx-auto py-4 px-4">
           {/* Header with navigation */}
-          <header className="flex justify-between items-center mb-4">
-            <Link href="/home">
-              <motion.div 
-                className="flex items-center gap-2 text-white"
-                whileHover={{ x: -4 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ArrowLeft size={20} />
-                <span className="font-pixel text-sm">BACK TO ARCADE</span>
-              </motion.div>
-            </Link>
+          <header className="grid grid-cols-3 items-center mb-4">
+            <div className="justify-self-start">
+              <Link href="/home">
+                <motion.div 
+                  className="flex items-center gap-2 text-white"
+                  whileHover={{ x: -4 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ArrowLeft size={20} />
+                  <span className="font-pixel text-sm">BACK TO ARCADE</span>
+                </motion.div>
+              </Link>
+            </div>
             
-            <h1 className="font-pixel text-lg md:text-xl text-center text-game-accent">
-              SKATE PARK DASH
+            <h1 className="font-pixel text-lg md:text-xl text-center text-game-accent justify-self-center">
+              SKATE DASH
             </h1>
             
-            <button 
-              onClick={toggleSound}
-              className="bg-black/30 rounded-full p-2"
-            >
-              {soundEnabled ? (
-                <Volume2 size={20} className="text-white" />
-              ) : (
-                <VolumeX size={20} className="text-white" />
-              )}
-            </button>
+            <div className="justify-self-end">
+              <button 
+                onClick={toggleSound}
+                className="bg-black/30 rounded-full p-2"
+              >
+                {soundEnabled ? (
+                  <Volume2 size={20} className="text-white" />
+                ) : (
+                  <VolumeX size={20} className="text-white" />
+                )}
+              </button>
+            </div>
           </header>
           
-          {/* Loading indicator */}
+          {/* Loading indicator - updated with larger size */}
           {isLoading && (
-            <div className="w-full max-w-2xl h-[320px] md:h-[360px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto flex flex-col items-center justify-center">
+            <div className="w-full max-w-[800px] h-[400px] md:h-[480px] lg:h-[520px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto flex flex-col items-center justify-center">
+              <h2 className="font-pixel text-3xl md:text-4xl text-center text-game-accent mb-6">
+                SKATE DASH
+              </h2>
               <div className="font-pixel text-game-yellow text-lg mb-4">LOADING GAME</div>
-              <div className="w-32 h-2 bg-black/30 rounded-full overflow-hidden">
+              <div className="w-64 h-4 bg-black/30 rounded-full overflow-hidden">
                 <motion.div 
                   className="h-full bg-game-accent"
                   initial={{ width: 0 }}

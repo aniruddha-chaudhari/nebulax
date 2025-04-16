@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/app/lib/utils';
 import Link from 'next/link';
 import { Star, Lock } from 'lucide-react';
@@ -23,10 +23,12 @@ const LevelCard = ({
   totalStars = 3, 
   imageUrl 
 }) => {
+  // Track feedback message when locked level is clicked
+  const [showLockMessage, setShowLockMessage] = useState(false);
   
   // Default placeholder image for levels
   const defaultImage = "/nebula.png";
-
+  
   // Determine the correct link path based on the game name
   const getLinkPath = () => {
     // Use a case-insensitive comparison with trim to handle potential whitespace issues
@@ -35,37 +37,71 @@ const LevelCard = ({
       console.log(`Routing to /home/battledeck for ${name}`);
       return "/home/battledeck";
     }
+    
     // Add specific routing for WodBlitz
     if (name && (name.trim().toLowerCase() === "wodblitz".toLowerCase() || 
                  name.trim().toLowerCase() === "wod blitz".toLowerCase())) {
       console.log(`Routing to /home/wodblitz for ${name}`);
       return "/home/wodblitz";
     }
+    
     // Add specific routing for SkateparkDash - include all possible variations
-    if (name && (name.trim().toLowerCase() === "skateparkdash".toLowerCase() || 
-                 name.trim().toLowerCase() === "Skate Park Dash".toLowerCase() ||
-                 name.trim().toLowerCase() === "skateboarddash".toLowerCase() ||
-                 name.trim().toLowerCase() === "skateboard dash".toLowerCase())) {
+    if (name && (name.trim().toLowerCase() === "skatedash".toLowerCase() || 
+                 name.trim().toLowerCase() === "Skate Dash".toLowerCase() ||
+                 name.trim().toLowerCase() === "skate dash".toLowerCase())) {
       console.log(`Routing to /home/skateparkdash for ${name}`);
       return "/home/skateparkdash";
     }
+    
+    // Add specific routing for Quizzy
+    if (name && (name.trim().toLowerCase() === "quizzy".toLowerCase() || 
+                 name.trim().toLowerCase() === "quiz arcade".toLowerCase() || 
+                 name.trim().toLowerCase() === "quizgame".toLowerCase() ||
+                 name.trim().toLowerCase() === "quiz game".toLowerCase())) {
+      console.log(`Routing to /home/quizzy for ${name}`);
+      return "/home/quizzy";
+    }
+    
+    // Add specific routing for Nebula Odyssey
+    if (name && name.trim().toLowerCase().includes("nebula")) {
+      console.log(`Routing to /home/nebulaodyssey for ${name}`);
+      return "/home";
+    }
+    
     console.log(`Routing to /level/${id} for ${name}`);
     return `/level/${id}`;
   };
-  
-  // Log the game name for debugging purposes
-  useEffect(() => {
-    console.log(`LevelCard rendered for: "${name}"`);
-  }, [name]);
 
-  const linkPath = getLinkPath();
+  // Hide lock message after 1.5 seconds
+  useEffect(() => {
+    if (showLockMessage) {
+      const timer = setTimeout(() => {
+        setShowLockMessage(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showLockMessage]);
+  
+  // Handle click on card
+  const handleCardClick = (e) => {
+    if (!isUnlocked) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log(`${name} is locked and cannot be accessed`);
+      setShowLockMessage(true);
+    }
+  };
   
   return (
     <div 
       className={cn(
         "relative w-full aspect-video max-w-[300px] pixel-borders-lg overflow-hidden transition-all duration-300 group",
-        isUnlocked ? "hover:scale-105" : "opacity-70"
+        isUnlocked 
+          ? "hover:scale-105 cursor-pointer" 
+          : "opacity-85 cursor-not-allowed border-gray-600 hover:brightness-90"
       )}
+      onClick={handleCardClick}
+      aria-disabled={!isUnlocked}
     >
       {/* Layered background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-game-primary/10 via-game-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -77,25 +113,41 @@ const LevelCard = ({
           src={imageUrl || defaultImage} 
           alt={`Level ${id}`} 
           className={cn(
-            "object-cover w-full h-full brightness-75 transition-all duration-300",
-            !isUnlocked && "filter grayscale",
-            "group-hover:brightness-90"
-          )}
+            "object-cover w-full h-full transition-all duration-300",
+            !isUnlocked && "filter grayscale brightness-50"
+          )} 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
       </div>
       
-      {/* Locked overlay with animation */}
+      {/* Locked overlay - enhanced with animation and styling */}
       {!isUnlocked && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <Lock size={40} className="text-white animate-pulse" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px]">
+          <div className="relative">
+            <Lock 
+              size={48} 
+              className="text-white/90 animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" 
+            />
+            <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-ping opacity-70"></div>
+          </div>
+          <p className="text-white/80 font-pixel text-xs mt-2">LOCKED</p>
+        </div>
+      )}
+      
+      {/* Feedback message when clicking locked level */}
+      {showLockMessage && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-30 animate-fadeIn">
+          <div className="bg-red-900/80 border border-red-500 px-4 py-2 rounded-md">
+            <p className="font-pixel text-red-200 text-center flex items-center gap-2">
+              <Lock size={16} /> Level Locked!
+            </p>
+          </div>
         </div>
       )}
       
       {/* Level info with enhanced depth */}
       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-game-dark via-game-dark/90 to-transparent">
         <h3 className="font-pixel text-sm text-white mb-2">Level {id}: {name}</h3>
-        
         {/* Stars collected with glow effect */}
         <div className="flex items-center gap-1">
           {Array.from({ length: totalStars }).map((_, index) => (
@@ -111,14 +163,13 @@ const LevelCard = ({
         </div>
       </div>
       
-      {/* Clickable link if unlocked */}
+      {/* Link for navigation - only for unlocked levels */}
       {isUnlocked && (
         <Link 
-          href={linkPath} 
+          href={getLinkPath()} 
           className="absolute inset-0 z-10 text-transparent hover:bg-white/5"
           aria-label={`Play Level ${id}: ${name}`}
           prefetch={true}
-          onClick={() => console.log(`Clicked on ${name}, navigating to ${linkPath}`)}
         >
           <span className="sr-only">{name}</span>
         </Link>

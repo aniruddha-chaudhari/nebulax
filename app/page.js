@@ -1,5 +1,8 @@
 'use client';
 
+// This is the landing/index page that users see first
+// Navigation flow: Landing page -> Home page -> Games
+
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -426,7 +429,7 @@ export default function Index() {
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          An 8-bit adventure awaits...
+          Welcome to the arcade universe! Start your journey...
         </motion.p>
       </motion.div>
       {/* Small mobile-friendly asteroid in top corner */}
@@ -489,6 +492,7 @@ export default function Index() {
         {/* Small asteroid near action buttons on mobile only */}
         <AsteroidImage className="block md:hidden absolute -left-12 top-1/2 z-10 opacity-40 scale-50" />
         
+        {/* This button takes user to the home page, not directly to games */}
         <Link href="/home" className="w-full">
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -496,7 +500,7 @@ export default function Index() {
           >
             <PixelButton color="primary" size="lg" className="w-full flex items-center justify-center gap-2">
               <Gamepad size={18} />
-              <span>Play GAME</span>
+              <span>Enter Arcade</span>
             </PixelButton>
           </motion.div>
         </Link>
@@ -793,7 +797,7 @@ export default function Index() {
         <Saturn2Image className="hidden md:block absolute left-[60%] bottom-10 z-10 opacity-50 scale-75" />
         
         <p className="text-sm text-white/60 font-pixel-secondary">
-          &copy; 2025 NEBULAX
+          &copy; 2025 NEBULAX | Main Landing Page
         </p>
         <div className="flex justify-center gap-4 mt-4">
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
