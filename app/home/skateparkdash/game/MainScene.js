@@ -28,6 +28,9 @@ export class MainScene extends Phaser.Scene {
   gameActive = false;
   startMessage;
   
+  // Sound enabled flag
+  soundEnabled = true;
+  
   // Add a cooldown flag to prevent immediate restart
   canRestart = true;
   
@@ -86,6 +89,15 @@ export class MainScene extends Phaser.Scene {
         this.addTextureErrorMessage();
         return;
       }
+
+      // Get sound enabled state from registry
+      if (this.registry.has('soundEnabled')) {
+        this.soundEnabled = this.registry.get('soundEnabled');
+        console.log("Initial sound state:", this.soundEnabled);
+      }
+      
+      // Listen for changes to the soundEnabled registry value
+      this.registry.events.on('changedata', this.handleRegistryChange, this);
       
       console.log("Creating game scene...");
       // Create parallax background layers
@@ -141,6 +153,14 @@ export class MainScene extends Phaser.Scene {
       console.error("Error in create:", err);
       // Display error message
       this.addErrorMessage(err.message);
+    }
+  }
+  
+  // Handle registry changes (including sound toggle)
+  handleRegistryChange(parent, key, data) {
+    if (key === 'soundEnabled') {
+      console.log("Sound setting changed to:", data);
+      this.soundEnabled = data;
     }
   }
   

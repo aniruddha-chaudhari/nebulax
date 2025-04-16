@@ -66,12 +66,14 @@ export const BlackholeImage = ({ className = "", ...props }) => (
       animate={{ 
         scale: [1, 1.05, 0.98, 1],
         x: [0, 1.5, -1.5, 0],
-        y: [0, -1.5, 1.5, 0]
+        y: [0, -1.5, 1.5, 0],
+        rotate: [0, 180, 360]
       }}
       transition={{ 
         scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
         x: { duration: 5.5, repeat: Infinity, ease: "easeInOut" },
-        y: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+        y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+        rotate: { duration: 20, repeat: Infinity, ease: "linear" }
       }}
     >
       <Image 

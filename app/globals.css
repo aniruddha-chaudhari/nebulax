@@ -514,36 +514,31 @@
     height: 100%;
   }
 
-  /* Optimize game container aspect ratio for landscape */
+  /* Optimize game container aspect ratio for both portrait and landscape */
   .game-landscape-container {
     width: 100%;
-    max-height: 80vh; /* Ensure it doesn't get too tall */
-    aspect-ratio: 16/9;
+    max-height: 80vh;
+    aspect-ratio: 16/9; /* Keep aspect ratio but allow it to fit in portrait mode */
     margin: 0 auto;
     position: relative;
   }
 
-  /* Force landscape on mobile when game is playing */
-  @media screen and (max-width: 767px) and (orientation: portrait) {
+  /* Responsive styles for both orientations instead of forcing landscape */
+  @media screen and (max-width: 767px) {
     .landscape-container {
       min-height: 100vh;
-      min-width: 100vw;
-      overflow: hidden;
+      overflow-x: hidden;
     }
     
-    /* Optional: visual indicator that landscape is preferred */
-    .game-landscape-container::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: url('/skatedash/rotate-device.svg') center/contain no-repeat;
-      opacity: 0.1;
-      pointer-events: none;
-      z-index: 1;
+    /* Improve spacing in portrait mode */
+    .mobile-game-container {
+      height: auto;
+      max-height: 60vh; /* Smaller height in portrait to leave room for controls */
+      padding-bottom: 0;
     }
   }
 
-  /* Optimize for landscape orientation */
+  /* Optimize for landscape orientation as an option but don't force it */
   @media screen and (max-width: 767px) and (orientation: landscape) {
     .landscape-container {
       height: 100vh;
@@ -571,6 +566,72 @@
       margin-top: 8px;
       padding-bottom: env(safe-area-inset-bottom, 8px);
     }
+  }
+
+  /* Mobile game control buttons - updated for both orientations */
+  .mobile-controls {
+    pointer-events: none; /* Let touch events pass through to the game canvas except for the buttons */
+  }
+  
+  .mobile-controls button {
+    pointer-events: auto; /* Make buttons clickable */
+    touch-action: none; /* Prevent browser handling of touch events */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+  }
+  
+  /* Optimize positioning in portrait mode for mobile controls */
+  @media screen and (max-width: 767px) and (orientation: portrait) {
+    .mobile-controls {
+      bottom: 20vh; /* Position further up in portrait mode to be above keyboard */
+    }
+  }
+  
+  /* Optimize for landscape orientation on mobile */
+  @media screen and (max-width: 767px) and (orientation: landscape) {
+    .mobile-controls {
+      padding: 0 12px;
+      bottom: 12px;
+    }
+    
+    .mobile-controls button {
+      width: 4rem;
+      height: 4rem;
+      border-width: 3px;
+    }
+  }
+
+  /* Optimize for smaller mobile screens */
+  @media screen and (max-width: 374px) {
+    .mobile-controls button {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+    
+    .mobile-controls .flex {
+      max-width: 260px;
+    }
+  }
+
+  /* Make buttons even more visible on dark scenes */
+  .mobile-controls button:active {
+    opacity: 0.8;
+  }
+
+  /* Prevent text selection on mobile controls */
+  .mobile-controls, .mobile-controls * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Pixel effect for mobile buttons */
+  .mobile-controls button {
+    image-rendering: pixelated;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+  }
+
+  .mobile-controls button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3);
   }
 
   /* Mobile landscape optimizations */
@@ -680,6 +741,65 @@
         padding-right: env(safe-area-inset-right, 8px) !important;
       }
     }
+  }
+
+  /* Mobile game control buttons */
+  .mobile-controls {
+    pointer-events: none; /* Let touch events pass through to the game canvas except for the buttons */
+  }
+
+  .mobile-controls button {
+    pointer-events: auto; /* Make buttons clickable */
+    touch-action: none; /* Prevent browser handling of touch events */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
+  }
+
+  /* Optimize for landscape orientation on mobile */
+  @media screen and (max-width: 767px) and (orientation: landscape) {
+    .mobile-controls {
+      padding: 0 12px;
+      bottom: 12px;
+    }
+    
+    .mobile-controls button {
+      width: 4rem;
+      height: 4rem;
+      border-width: 3px;
+    }
+  }
+
+  /* Optimize for smaller mobile screens */
+  @media screen and (max-width: 374px) {
+    .mobile-controls button {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+    
+    .mobile-controls .flex {
+      max-width: 260px;
+    }
+  }
+
+  /* Make buttons even more visible on dark scenes */
+  .mobile-controls button:active {
+    opacity: 0.8;
+  }
+
+  /* Prevent text selection on mobile controls */
+  .mobile-controls, .mobile-controls * {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Pixel effect for mobile buttons */
+  .mobile-controls button {
+    image-rendering: pixelated;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+  }
+
+  .mobile-controls button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3);
   }
 }
 

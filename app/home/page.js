@@ -30,7 +30,7 @@ const GAMES = [
     description: "Assemble your ultimate card deck and engage in strategic turn-based combat.",
     starsCollected: 2,
     totalStars: 3,
-    imageUrl: "/battledeck/battldeck.png",
+    imageUrl: "/battledeck/battldeck.jpeg",
     category: "Strategy",
     isUnlocked: true,
     mapX: 30, // Added map coordinates
@@ -44,7 +44,7 @@ const GAMES = [
     isUnlocked: true,
     starsCollected: 1,
     totalStars: 3,
-    imageUrl: "/wodblitz/wodblitz.png",
+    imageUrl: "/wodblitz/wodblitz.jpeg",
     mapX: 65,
     mapY: 40
   },
@@ -56,7 +56,7 @@ const GAMES = [
     isUnlocked: true,
     starsCollected: 0,
     totalStars: 3,
-    imageUrl: "/skatedash/skatedash.png",
+    imageUrl: "/skatedash/skatedash.jpeg",
     mapX: 50,
     mapY: 70
   },  {
@@ -86,11 +86,11 @@ const GAMES = [
 
 const ONLINE_FRIENDS = [
   { id: 1, name: "PixelMaster", avatar: "/avatar1.png", status: "Playing Battle Deck" },
-  { id: 2, name: "RetroGamer", avatar: "/avatar2.png", status: "Online" },
-  { id: 3, name: "ArcadeKing", avatar: "/avatar3.png", status: "In menu" },
-  { id: 4, name: "NeoNinja", avatar: "/avatar4.png", status: "In match" },
-  { id: 5, name: "GameWizard", avatar: "/avatar5.png", status: "Browsing store" },
-  { id: 6, name: "CyberCat", avatar: "/avatar.png", status: "Idle" },
+  { id: 2, name: "RetroGamer", avatar: "/avatar2.jpg", status: "Online" },
+  { id: 3, name: "ArcadeKing", avatar: "/avatar3.jpg", status: "In menu" },
+  { id: 4, name: "NeoNinja", avatar: "/avatar4.jpg", status: "In match" },
+  { id: 5, name: "GameWizard", avatar: "/avatar5.jpg", status: "Browsing store" },
+  { id: 6, name: "CyberCat", avatar: "/avatar.jpg", status: "Idle" },
 ];
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/app/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Star, Lock } from 'lucide-react';
 
 /**
@@ -106,12 +107,19 @@ const LevelCard = ({
       {/* Layered background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-game-primary/10 via-game-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-      
-      {/* Level image with gradient overlay */}
+        {/* Level image with gradient overlay */}
       <div className="relative w-full h-full">
-        <img 
+        <Image 
           src={imageUrl || defaultImage} 
-          alt={`Level ${id}`} 
+          alt={`Level ${id}`}
+          fill
+          sizes="(max-width: 768px) 100vw, 300px"
+          priority={
+            imageUrl === "/battledeck/battldeck.png" || 
+            imageUrl === "/quizzy/quizzy.png" || 
+            imageUrl === "/skatedash/skatedash.png" || 
+            imageUrl === "/wodblitz/wodblitz.png"
+          }
           className={cn(
             "object-cover w-full h-full transition-all duration-300",
             !isUnlocked && "filter grayscale brightness-50"

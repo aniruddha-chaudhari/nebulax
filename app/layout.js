@@ -15,7 +15,7 @@ const vt323 = VT323({
 });
 
 export const metadata = {
-  title: "Pixel Palace Quest",
+  title: "NEBULAX",
   description: "An 8-bit arcade adventure game",
 };
 
