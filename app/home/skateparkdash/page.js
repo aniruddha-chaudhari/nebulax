@@ -32,6 +32,31 @@ export default function SkateboardDashPage() {
     return () => clearTimeout(timer);
   }, []);
   
+  // Add a style element to prevent text selection on mobile
+  useEffect(() => {
+    // Only apply this fix on mobile devices
+    if (isMobile) {
+      // Create a style element to add no-select styles
+      const styleEl = document.createElement('style');
+      styleEl.innerHTML = `
+        .no-select-mobile {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -webkit-touch-callout: none !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+      
+      // Apply no-select class to the body
+      document.body.classList.add('no-select-mobile');
+      
+      return () => {
+        document.head.removeChild(styleEl);
+        document.body.classList.remove('no-select-mobile');
+      };
+    }
+  }, [isMobile]);
+  
   // Check and update screen orientation
   useEffect(() => {
     if (typeof window === 'undefined') return;

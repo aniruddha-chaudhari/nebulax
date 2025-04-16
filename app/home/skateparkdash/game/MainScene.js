@@ -400,7 +400,7 @@ export class MainScene extends Phaser.Scene {
     this.canRestart = false;
     
     // Allow restart after a delay (1200ms = 1.2 seconds)
-    this.time.delayedCall(1200, () => {
+    this.time.delayedCall(700, () => {
       this.canRestart = true;
     });
     
