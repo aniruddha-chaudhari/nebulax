@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Compass, Map } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
+import Link from 'next/link';
 
 const RetroMap = ({ games, onSelectGame }) => {
     const mapRef = useRef(null);

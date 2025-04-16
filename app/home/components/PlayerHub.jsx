@@ -26,7 +26,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
           <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
           <div className="relative z-10 w-20 h-20">
             <Image
-              src="/avatar1.png"
+              src="/home/avatar1.png"
               alt="Player avatar"
               width={80}
               height={80}
@@ -35,7 +35,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
             />
           </div>
         </div>
-        <h3 className="font-pixel text-white mt-3 text-shadow-lg">PLAYER_1</h3>
+        <h3 className="font-pixel text-white mt-3 text-shadow-lg">RetroMaster</h3>
         <p className="font-pixel-secondary text-game-yellow text-shadow">Level 5</p>
       </div>
       

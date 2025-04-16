@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft,
@@ -96,12 +97,12 @@ const GAMES = [
 ];
 
 const ONLINE_FRIENDS = [
-  { id: 1, name: "PixelMaster", avatar: "/avatar.png", status: "Playing Battle Deck" },
-  { id: 2, name: "RetroGamer", avatar: "/avatar2.jpg", status: "Online" },
-  { id: 3, name: "ArcadeKing", avatar: "/avatar3.jpg", status: "In menu" },
-  { id: 4, name: "NeoNinja", avatar: "/avatar4.jpg", status: "In match" },
-  { id: 5, name: "GameWizard", avatar: "/avatar5.jpg", status: "Browsing store" },
-  { id: 6, name: "CyberCat", avatar: "/avatar.jpg", status: "Idle" },
+  { id: 1, name: "PixelMaster", avatar: "/home/avatar.jpg", status: "Playing Battle Deck" },
+  { id: 2, name: "RetroGamer", avatar: "/home/avatar2.jpg", status: "Online" },
+  { id: 3, name: "ArcadeKing", avatar: "/home/avatar3.jpg", status: "In menu" },
+  { id: 4, name: "NeoNinja", avatar: "/home/avatar4.jpg", status: "In match" },
+  { id: 5, name: "GameWizard", avatar: "/home/avatar5.jpg", status: "Browsing store" },
+  { id: 6, name: "CyberCat", avatar: "/home/avatar6.jpg", status: "Idle" },
 ];
 
 
@@ -145,10 +146,38 @@ export default function Home() {
   }, []);
   
   // Handler for selecting a game from the map
+  const router = useRouter();
+  
   const handleSelectGame = (game) => {
     setSelectedGame(game);
-    // Can be extended to navigate to the game
-    console.log(`Selected game: ${game.name}`);
+    
+    // Only navigate if the game is unlocked
+    if (!game.isUnlocked) return;
+    
+    // Determine game path based on name
+    let gamePath = `/level/${game.id}`;
+    
+    // Convert to lowercase for case-insensitive comparison
+    const gameName = game.name.trim().toLowerCase();
+    
+    if (gameName === "battle deck" || gameName === "battledeck") {
+      gamePath = "/home/battledeck";
+    } 
+    else if (gameName === "wodblitz" || gameName === "wod blitz") {
+      gamePath = "/home/wodblitz";
+    }
+    else if (gameName === "skate dash" || gameName === "skatedash") {
+      gamePath = "/home/skateparkdash";
+    }
+    else if (gameName === "quizzy" || gameName === "quiz arcade" || gameName === "quizgame" || gameName === "quiz game") {
+      gamePath = "/home/quizzy";
+    }
+    else if (gameName.includes("nebula")) {
+      gamePath = "/home";
+    }
+    
+    console.log(`Navigating to ${gamePath} for game: ${game.name}`);
+    router.push(gamePath);
   };
   
   return (

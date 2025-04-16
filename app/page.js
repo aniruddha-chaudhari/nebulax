@@ -543,7 +543,8 @@ export default function Index() {
       <Asteroid3Image className="hidden md:block absolute left-[5%] top-[45%] z-10 opacity-80" />
       <AsteroidImage className="hidden md:block absolute right-[12%] top-[50%] z-10 opacity-70" />
       <BlackholeImage className="hidden md:block absolute left-[10%] top-[29%] z-10 opacity-50 scale-75 md:scale-100" />
-      <Asteroid2Image className="hidden md:block absolute right-[28%] top-[60%] z-10 opacity-75" />
+      <Asteroid2Image className="hidden md:block absolute right-[19%] top-[64%] z-10 opacity-75" />
+      <FallingStarImage className="hidden md:block absolute left-[15%] top-[64%] z-10 opacity-75" />
       <RegularBlackholeImage className="hidden md:block absolute left-[35%] top-[55%] z-10 opacity-60" />
       <SpacecraftImage className="absolute left-[40%] top-[30%] z-10 opacity-90 scale-75 md:scale-100" />
       <ISSImage className="hidden md:block absolute right-[15%] top-[28%] z-10 opacity-80" />
@@ -783,7 +784,7 @@ export default function Index() {
       {/* <FloatingAsteroids className="bottom-[10%] right-[5%] z-10" /> */}
       
       <motion.footer 
-        className="w-full bg-black/50 py-8 text-center"
+        className="w-full bg-black/50 py-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -793,18 +794,202 @@ export default function Index() {
         <AsteroidImage className="hidden md:block absolute left-[8%] bottom-8 z-10 opacity-70 scale-75" />
         <Asteroid3Image className="absolute right-[10%] bottom-16 z-10 opacity-40 md:opacity-80 scale-50 md:scale-75" />
         <Asteroid2Image className="absolute left-[35%] bottom-28 md:bottom-20 z-10 opacity-30 md:opacity-60 scale-40 md:scale-75" />
-
         <Saturn2Image className="hidden md:block absolute left-[60%] bottom-10 z-10 opacity-50 scale-75" />
         
-        <p className="text-sm text-white/60 font-pixel-secondary">
-          &copy; 2025 NEBULAX | Main Landing Page
-        </p>
-        <div className="flex justify-center gap-4 mt-4">
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <PixelButton color="primary" size="sm">Credits</PixelButton>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <PixelButton color="secondary" size="sm">Contact</PixelButton>
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Retro Pixel Art Footer Separator */}
+          <div className="flex justify-center mb-8">
+            <div className="flex items-center gap-2">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className={`h-2 w-2 ${i % 2 === 0 ? 'bg-game-primary' : 'bg-game-accent'}`}
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
+                />
+              ))}
+              <motion.div
+                className="h-4 w-4 bg-game-yellow"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              />
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i + 5}
+                  className={`h-2 w-2 ${i % 2 === 0 ? 'bg-game-accent' : 'bg-game-primary'}`}
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Footer Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {/* Logo & About Column */}
+            <div className="text-center md:text-left">
+              <motion.h3 
+                className="text-2xl font-pixel text-white mb-4 pixel-text-shadow"
+                animate={{ textShadow: ["0 0 5px #ff0077", "0 0 15px #ff0077", "0 0 5px #ff0077"] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                NEBULAX
+              </motion.h3>
+              <p className="text-sm text-white/70 font-pixel-secondary mb-4">
+                A retro arcade experience with modern gaming elements. Collect stars, unlock games, and compete with friends!
+              </p>
+              
+              {/* Social Media Icons */}
+              <div className="flex justify-center md:justify-start gap-3 mt-3">
+                {['Discord', 'Twitter', 'YouTube', 'GitHub'].map((platform, i) => (
+                  <motion.a 
+                    key={platform}
+                    href="#" 
+                    className="pixel-container w-8 h-8 flex items-center justify-center bg-game-dark/50 hover:bg-game-primary/50 transition-colors"
+                    whileHover={{ scale: 1.1, y: -3 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <span className="text-xs font-pixel text-white">{platform.charAt(0)}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+            
+            {/* Quick Links Column */}
+            <div className="text-center md:text-left">
+              <h4 className="font-pixel text-white text-lg mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                {['Games', 'Leaderboard', 'News', 'Updates', 'Help'].map((link, i) => (
+                  <motion.li 
+                    key={link}
+                    initial={{ x: -10, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <motion.a 
+                      href="#" 
+                      className="text-sm font-pixel-secondary text-white/70 hover:text-game-accent flex items-center gap-2"
+                      whileHover={{ x: 5, color: "#ff77ff" }}
+                    >
+                      <span className="text-game-yellow">►</span> {link}
+                    </motion.a>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Games Column */}
+            <div className="text-center md:text-left">
+              <h4 className="font-pixel text-white text-lg mb-4">Featured Games</h4>
+              <ul className="space-y-2">
+                {['Battle Deck', 'WodBlitz', 'Skate Dash', 'Quizzy', 'Cosmic Conquest'].map((game, i) => (
+                  <motion.li 
+                    key={game}
+                    initial={{ x: -10, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: i * 0.1 + 0.2 }}
+                  >
+                    <motion.a 
+                      href="#" 
+                      className="text-sm font-pixel-secondary text-white/70 hover:text-game-accent flex items-center gap-2"
+                      whileHover={{ x: 5, color: "#77ffff" }}
+                    >
+                      <span className="text-game-yellow">►</span> {game}
+                    </motion.a>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Newsletter Signup */}
+            <div className="text-center md:text-left">
+              <h4 className="font-pixel text-white text-lg mb-4">Newsletter</h4>
+              <p className="text-sm text-white/70 font-pixel-secondary mb-3">
+                Get the latest updates and exclusive content
+              </p>
+              
+              <div className="pixel-container bg-black/30 p-1 mb-2">
+                <input 
+                  type="email" 
+                  placeholder="your-email@example.com" 
+                  className="w-full px-3 py-2 bg-game-dark font-pixel-secondary text-white text-sm focus:outline-none border-b-2 border-game-primary"
+                />
+              </div>
+              
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <PixelButton color="accent" size="sm" className="w-full">
+                  SUBSCRIBE
+                </PixelButton>
+              </motion.div>
+            </div>
+          </div>
+          
+          {/* Bottom Footer Bar */}
+          <motion.div 
+            className="border-t border-white/10 pt-6 mt-8 flex flex-col md:flex-row items-center justify-between"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <p className="text-sm text-white/60 font-pixel-secondary mb-4 md:mb-0">
+              &copy; 2025 NEBULAX | All rights reserved
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-white/50 font-pixel-secondary">
+              <motion.a 
+                href="#" 
+                className="hover:text-game-primary"
+                whileHover={{ scale: 1.05 }}
+              >
+                Terms
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="hover:text-game-primary"
+                whileHover={{ scale: 1.05 }}
+              >
+                Privacy
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="hover:text-game-primary"
+                whileHover={{ scale: 1.05 }}
+              >
+                Credits
+              </motion.a>
+              <motion.a 
+                href="#" 
+                className="hover:text-game-primary"
+                whileHover={{ scale: 1.05 }}
+              >
+                Contact
+              </motion.a>
+            </div>
+            
+            {/* Scroll To Top Button - shown on all devices */}
+            <motion.button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center justify-center w-12 h-12 rounded-sm bg-game-primary/50 hover:bg-game-primary/80 pixel-container mt-4 md:mt-0 border border-white/20"
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.9 }}
+              animate={{ 
+                y: [0, -5, 0],
+                boxShadow: [
+                  "0 0 0px rgba(255, 0, 119, 0)",
+                  "0 0 12px rgba(255, 0, 119, 0.7)",
+                  "0 0 0px rgba(255, 0, 119, 0)"
+                ] 
+              }}
+              transition={{ 
+                y: { duration: 2, repeat: Infinity, repeatType: 'reverse' },
+                boxShadow: { duration: 1.5, repeat: Infinity } 
+              }}
+            >
+              <ArrowDown className="text-white transform rotate-180" size={24} strokeWidth={2.5} />
+            </motion.button>
           </motion.div>
         </div>
       </motion.footer>

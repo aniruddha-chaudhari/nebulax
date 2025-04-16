@@ -442,7 +442,42 @@ export const RegularBlackholeImage = ({ className = "", ...props }) => (
 
 export const FallingStarImage = ({ className = "", ...props }) => (
   <div className={`absolute w-24 h-24 ${className}`} {...props}>
-    <div className="h-full w-full relative">
+    <motion.div 
+      className="h-full w-full relative"
+      animate={{ 
+        x: [0, -30, -60],
+        y: [0, 30, 60],
+scale: [1, 1.1, 0.9],
+      }}
+      transition={{ 
+        duration: 2.5, 
+        repeat: Infinity, 
+        repeatType: "reverse",
+        ease: "linear" 
+      }}
+    >
+      {/* Star trail effect */}
+      <motion.div 
+        className="absolute -top-2 -left-2 w-full h-full opacity-50"
+        animate={{
+          opacity: [0.5, 0.2, 0]
+        }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity
+        }}
+      >
+        <Image 
+          src={assetImages.fallingStar}
+          alt="Star Trail" 
+          width={96}
+          height={96}
+          className="object-contain"
+          style={{ imageRendering: 'pixelated', filter: 'blur(1px)' }}
+        />
+      </motion.div>
+      
+      {/* Main star image */}
       <Image 
         src={assetImages.fallingStar}
         alt="Falling Star" 
@@ -452,7 +487,17 @@ export const FallingStarImage = ({ className = "", ...props }) => (
         style={{ imageRendering: 'pixelated' }}
         priority
       />
-    </div>
+      
+      {/* Glow effect */}
+      <motion.div 
+        className="absolute inset-0 bg-white/20 rounded-full blur-sm"
+        animate={{ 
+          opacity: [0.3, 0.6, 0.3],
+          scale: [0.8, 1.2, 0.8]
+        }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
+    </motion.div>
   </div>
 );
 
