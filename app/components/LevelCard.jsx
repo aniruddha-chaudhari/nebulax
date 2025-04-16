@@ -138,7 +138,6 @@ const LevelCard = ({
             />
             <div className="absolute inset-0 bg-red-500/20 rounded-full blur-md animate-ping opacity-70"></div>
           </div>
-          <p className="text-white/80 font-pixel text-xs mt-2">LOCKED</p>
         </div>
       )}
       

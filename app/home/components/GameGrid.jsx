@@ -43,6 +43,7 @@ const GameGrid = ({ games }) => {
               starsCollected={game.starsCollected}
               totalStars={game.totalStars}
               imageUrl={game.imageUrl}
+              isUnlocked={game.isUnlocked}
             />
             <div className="absolute top-2 right-2 bg-black/70 text-xs px-2 py-1 rounded-md text-white font-pixel">
               {game.category}

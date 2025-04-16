@@ -26,7 +26,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
           <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
           <div className="relative z-10 w-20 h-20">
             <Image
-              src="/avatar.jpg"
+              src="/avatar1.png"
               alt="Player avatar"
               width={80}
               height={80}

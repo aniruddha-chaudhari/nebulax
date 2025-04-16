@@ -67,7 +67,7 @@ const GAMES = [
     isUnlocked: true,
     starsCollected: 0,
     totalStars: 3,
-    imageUrl: "/quizzy/quizzy.png",
+    imageUrl: "/quizzy/quizzy.jpeg",
     mapX: 20,
     mapY: 60
   }, {
@@ -81,11 +81,22 @@ const GAMES = [
     imageUrl: "/nebula.png",
     mapX: 80,
     mapY: 15
+  }, {
+    id: 6,
+    name: "Cosmic Conquest",
+    description: "Command a fleet of starships in an interstellar battle for dominance. Strategic space warfare at its finest.",
+    category: "Strategy",
+    isUnlocked: false,
+    starsCollected: 0,
+    totalStars: 4,
+    imageUrl: "/spaceconquest.jpeg",
+    mapX: 15,
+    mapY: 10
   }
 ];
 
 const ONLINE_FRIENDS = [
-  { id: 1, name: "PixelMaster", avatar: "/avatar1.png", status: "Playing Battle Deck" },
+  { id: 1, name: "PixelMaster", avatar: "/avatar.png", status: "Playing Battle Deck" },
   { id: 2, name: "RetroGamer", avatar: "/avatar2.jpg", status: "Online" },
   { id: 3, name: "ArcadeKing", avatar: "/avatar3.jpg", status: "In menu" },
   { id: 4, name: "NeoNinja", avatar: "/avatar4.jpg", status: "In match" },
