@@ -128,9 +128,10 @@ const RetroMap = ({ games, onSelectGame }) => {
     const handleTouchMove = (e) => {
       if (isDragging && e.touches && e.touches[0]) {
         e.preventDefault(); // Prevent screen scrolling while dragging the map
+        e.stopPropagation(); // Stop event propagation
         
         let newX = e.touches[0].clientX - dragStart.x;
-        let newY = e.touches[0].clientY - dragStart.y; // Fixed this line: using dragStart.y instead of mapPosition.y
+        let newY = e.touches[0].clientY - dragStart.y;
         
         // Calculate min values (these are negative numbers)
         const minX = containerBounds.width - mapBounds.width;
@@ -163,7 +164,7 @@ const RetroMap = ({ games, onSelectGame }) => {
 
   return (
     <div 
-      className="relative w-full aspect-video bg-game-dark/90 overflow-hidden border-4 border-black rounded-lg pixel-borders arcade-scanline"
+      className="relative w-full aspect-video bg-game-dark/90 overflow-hidden border-4 border-black rounded-lg pixel-borders arcade-scanline touch-action-none"
       ref={containerRef}
     >
       <div className="absolute top-2 left-2 z-10 bg-black/70 px-3 py-1 border-2 border-game-primary pixel-borders">

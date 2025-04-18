@@ -890,3 +890,9 @@
 .touch-dragging\:bg-primary\/20:active {
   background-color: rgba(var(--color-primary), 0.2);
 }
+
+/* Add touch action utilities */
+.touch-action-none {
+  touch-action: none;
+  -webkit-touch-action: none;
+}
