@@ -29,7 +29,7 @@ const HandArea = () => {
   }, []);
 
   return (
-    <div className="bg-muted p-2 mt-2 pixel-border-sm">
+    <div className="bg-muted p-2 mt-2 pixel-border-sm md:pb-4 md:mb-8">
       <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center mb-2 gap-2 xs:gap-0">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-pixel text-white">Your Hand</h2>
@@ -65,7 +65,8 @@ const HandArea = () => {
         </p>
       </div>
       
-      <div className="card-hand mb-2 flex flex-wrap justify-center gap-2">
+      {/* Card hand layout with centered cards */}
+      <div className="card-hand mb-2 flex flex-wrap justify-center gap-2 md:gap-3">
         {playerHand.map((card, index) => (
           <div key={card.id} className="card-wrapper relative">
             <div>
@@ -108,6 +109,9 @@ const HandArea = () => {
           <p className="font-vt323 text-white">No cards in hand</p>
         </div>
       )}
+      
+      {/* Spacer only visible on iPad screens to provide extra space at bottom */}
+      <div className="hidden md:block lg:hidden h-6"></div>
     </div>
   );
 };

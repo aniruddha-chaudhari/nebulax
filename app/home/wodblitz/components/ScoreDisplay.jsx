@@ -10,7 +10,7 @@ const ScoreDisplay = ({ score, foundWords }) => {
         <div className="font-pixel text-lg text-retro-yellow font-bold">{score}</div>
       </div>
       
-      <div className="h-[100px] overflow-y-auto scrollbar-thin">
+      <div className="h-[120px] md:h-[150px] overflow-y-auto scrollbar-thin">
         {foundWords.length > 0 ? (
           <div className="grid grid-cols-2 gap-x-3 gap-y-1">
             {foundWords.map((word, index) => (

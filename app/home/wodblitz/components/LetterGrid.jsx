@@ -302,10 +302,11 @@ const LetterGrid = React.forwardRef(({ size, onWordSelected, hintWord }, ref) =>
       onDragStart={(e) => e.preventDefault()}
       draggable="false"
     >
-      <div className="letter-grid-container p-1" draggable="false">
-        <div className="grid grid-cols-10 gap-1" draggable="false">
+      <div className="letter-grid-container p-1 md:p-2 transform-none md:transform-none lg:transform-none" draggable="false">
+        <div className="grid grid-cols-10 gap-1 md:gap-1.5" draggable="false">
           {grid.map((row, rowIndex) =>
-            row.map((letter, colIndex) => (            <LetterGridCell
+            row.map((letter, colIndex) => (
+              <LetterGridCell
                 key={`${rowIndex}-${colIndex}`}
                 letter={letter}
                 rowIndex={rowIndex}

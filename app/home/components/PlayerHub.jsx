@@ -6,10 +6,10 @@ import { User, Trophy, Settings, Users, Star, Gamepad } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
 import Image from 'next/image';
 
-const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achievements }) => {
+const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achievements, className }) => {
   return (
     <motion.aside 
-      className="md:col-span-3 pixel-container bg-gray-400/10"
+      className={`pixel-container bg-gray-400/10 ${className || ''}`}
       initial={{ x: -50, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -122,7 +122,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
       
       {/* Achievements section */}
       <div className="mb-4">
-        <h3 className="font-pixel text-white text-lg mb-2 flex items-center justify-center md:justify-start gap-2">
+        <h3 className="font-pixel text-white text-lg md:text-sm mb-2 flex items-center justify-center md:justify-start gap-2">
           <Trophy size={14} className="text-game-yellow" /> <span>ACHIEVEMENTS</span>
         </h3>
         
@@ -153,10 +153,10 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
               
               {/* Achievement info */}
               <div className="flex-1 min-w-0">
-                <p className={`font-pixel text-xs truncate ${
+                <p className={`font-pixel text-xs md:text-[0.65rem] truncate ${
                   achievement.completed ? 'text-white' : 'text-white/70'
                 }`}>{achievement.name}</p>
-                <p className="text-white/60 font-pixel-secondary text-xs truncate">{achievement.description}</p>
+                <p className="text-white/60 font-pixel-secondary text-xs md:text-[0.6rem] truncate">{achievement.description}</p>
               </div>
               
               {/* Completion indicator */}
@@ -177,7 +177,7 @@ const PlayerHub = ({ totalCollectedStars, totalStars, games, onlineFriends, achi
           {onlineFriends.map((friend, index) => (
             <motion.div 
               key={friend.id}
-              className="flex items-center gap-2 mb-2 p-1 hover:bg-game-secondary/20 cursor-pointer"
+              className={`flex items-center gap-2 mb-2 p-1 hover:bg-game-secondary/20 cursor-pointer ${index >= 3 ? 'hidden lg:flex' : ''}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}

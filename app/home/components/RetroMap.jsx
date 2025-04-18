@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Compass, Map } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
 import Link from 'next/link';
+import { useIsMobile } from '@/app/hooks/use-mobile';
 
 const RetroMap = ({ games, onSelectGame }) => {
     const mapRef = useRef(null);
@@ -15,6 +16,7 @@ const RetroMap = ({ games, onSelectGame }) => {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [containerBounds, setContainerBounds] = useState({ width: 0, height: 0 });
     const [mapBounds, setMapBounds] = useState({ width: 0, height: 0 });
+    const isMobile = useIsMobile();
     
     useEffect(() => {
       if (containerRef.current && mapRef.current) {
@@ -26,11 +28,10 @@ const RetroMap = ({ games, onSelectGame }) => {
             height: containerRect.height
           });
           
-          // For the map, we need to account for its actual content size
-          // which is why we're using a multiplier (this creates a draggable area)
+         
           setMapBounds({
-            width: containerRect.width * 1.5,  // Make map 50% larger than container
-            height: containerRect.height * 1.5 // Make map 50% larger than container
+            width: containerRect.width * 1.5,  
+            height: containerRect.height * 1.5 
           });
         };
         
@@ -74,6 +75,9 @@ const RetroMap = ({ games, onSelectGame }) => {
     
     // Mouse event handlers
     const handleStartDrag = (e) => {
+      // Don't start dragging when clicking on a game pin
+      if (e.target.closest('.game-pin')) return;
+      
       setIsDragging(true);
       setDragStart({
         x: e.clientX - mapPosition.x,
@@ -109,6 +113,9 @@ const RetroMap = ({ games, onSelectGame }) => {
     
     // Touch event handlers for mobile
     const handleTouchStart = (e) => {
+      // Don't start dragging when touching a game pin
+      if (e.target.closest('.game-pin')) return;
+      
       if (e.touches && e.touches[0]) {
         setIsDragging(true);
         setDragStart({
@@ -123,7 +130,7 @@ const RetroMap = ({ games, onSelectGame }) => {
         e.preventDefault(); // Prevent screen scrolling while dragging the map
         
         let newX = e.touches[0].clientX - dragStart.x;
-        let newY = e.touches[0].clientY - dragStart.y;
+        let newY = e.touches[0].clientY - dragStart.y; // Fixed this line: using dragStart.y instead of mapPosition.y
         
         // Calculate min values (these are negative numbers)
         const minX = containerBounds.width - mapBounds.width;
@@ -255,12 +262,20 @@ const RetroMap = ({ games, onSelectGame }) => {
         {games.map((game) => (
           <motion.div
             key={game.id}
-            className={`absolute cursor-pointer z-20 ${!game.isUnlocked && 'grayscale'}`}
+            className={`absolute cursor-pointer z-20 ${!game.isUnlocked && 'grayscale'} game-pin`}
             style={{ top: `${game.mapY}%`, left: `${game.mapX}%` }}
             whileHover={{ scale: 1.2 }}
             onMouseEnter={() => setHoveredGame(game)}
             onMouseLeave={() => setHoveredGame(null)}
             onClick={() => game.isUnlocked && onSelectGame(game)}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              setHoveredGame(game);
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              if (game.isUnlocked) onSelectGame(game);
+            }}
           >
             <div className={`w-10 h-10 flex items-center justify-center rounded-full border-4 ${game.isUnlocked ? 'bg-game-primary border-game-yellow' : 'bg-gray-500 border-gray-600'} shadow-lg`}>
               {game.isUnlocked ? (
@@ -284,7 +299,7 @@ const RetroMap = ({ games, onSelectGame }) => {
         ))}
       </div>
       
-      {hoveredGame && (
+      {hoveredGame && !isMobile && (
         <motion.div 
           className="absolute bottom-4 left-4 right-4 bg-black/90 p-3 border-2 border-game-yellow rounded-lg z-30"
           initial={{ opacity: 0, y: 10 }}

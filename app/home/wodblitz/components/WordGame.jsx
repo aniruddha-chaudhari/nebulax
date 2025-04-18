@@ -168,7 +168,8 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto">      <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-2">
+    <div className="w-full max-w-5xl mx-auto">      
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-2 mb-2">
         {/* Game Header - Left Side */}
         <header className="w-full sm:w-auto flex items-center gap-3">
           <Link href="/home" className="inline-block">
@@ -177,7 +178,7 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
             </button>
           </Link>
           <div>
-            <h1 className="font-pixel text-xl text-retro-purple">WOD BLITZ</h1>
+            <h1 className="font-pixel text-xl md:text-2xl text-retro-purple">WOD BLITZ</h1>
             <p className="font-pixel text-xs text-retro-blue">FIND WORDS - BEAT THE CLOCK</p>
           </div>
         </header>
@@ -228,10 +229,11 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
         </div>
       </div>
 
+      {/* Updated grid layout with proper spacing to avoid overlaps */}
       <div className="grid grid-cols-12 gap-2">
-        {/* Left side - Word grid */}
-        <div className="col-span-12 sm:col-span-8">
-          <div className="pixel-panel p-1">
+        {/* Letter grid - Takes full width on mobile and iPad, 8/12 on large screens */}
+        <div className="col-span-12 lg:col-span-8">
+          <div className="pixel-panel p-1 md:p-2 lg:p-1 overflow-hidden">
             <LetterGrid 
               size={gridSize} 
               onWordSelected={handleWordSelected} 
@@ -241,18 +243,44 @@ const WordGame = ({ gridSize = 10, gameTime = 120 }) => {
           </div>
         </div>
 
-        {/* Right side - Score area */}
-        <div className="col-span-12 sm:col-span-4">
-          <ScoreDisplay score={score} foundWords={foundWords} />
+        {/* Side panel - Takes full width on mobile, side by side panels on iPad, stacked on right on large screens */}
+        <div className="col-span-12 lg:col-span-4">
+          {/* For desktop layout (lg and above) */}
+          <div className="hidden lg:block">
+            <ScoreDisplay score={score} foundWords={foundWords} />
+            
+            <div className="mt-2 pixel-panel p-1">
+              <h2 className="font-pixel text-xs mb-1">HOW TO PLAY</h2>
+              <ul className="text-[10px] font-pixel space-y-1 pl-1">
+                <li>• FIND WORDS BY CONNECTING LETTERS</li>
+                <li>• WORDS MUST BE 3+ LETTERS</li>
+                <li>• LONGER WORDS = MORE POINTS</li>
+                <li className="text-retro-yellow">• USE HINTS IF YOU'RE STUCK</li>
+              </ul>
+            </div>
+          </div>
           
-          <div className="mt-2 pixel-panel p-1">
-            <h2 className="font-pixel text-xs mb-1">HOW TO PLAY</h2>
-            <ul className="text-[10px] font-pixel space-y-1 pl-1">
-              <li>• FIND WORDS BY CONNECTING LETTERS</li>
-              <li>• WORDS MUST BE 3+ LETTERS</li>
-              <li>• LONGER WORDS = MORE POINTS</li>
-              <li className="text-retro-yellow">• USE HINTS IF YOU'RE STUCK</li>
-            </ul>
+          {/* For iPad and mobile layout (below lg) */}
+          <div className="lg:hidden mt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {/* Words Found */}
+              <div className="col-span-1">
+                <ScoreDisplay score={score} foundWords={foundWords} />
+              </div>
+              
+              {/* How To Play */}
+              <div className="col-span-1">
+                <div className="pixel-panel p-1 h-full">
+                  <h2 className="font-pixel text-xs mb-1">HOW TO PLAY</h2>
+                  <ul className="text-[10px] font-pixel space-y-1 pl-1">
+                    <li>• FIND WORDS BY CONNECTING LETTERS</li>
+                    <li>• WORDS MUST BE 3+ LETTERS</li>
+                    <li>• LONGER WORDS = MORE POINTS</li>
+                    <li className="text-retro-yellow">• USE HINTS IF YOU'RE STUCK</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

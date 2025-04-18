@@ -227,7 +227,7 @@ export default function Home() {
         <main className="px-4 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Sidebar - Player Info */}
-            <PlayerHub 
+            <PlayerHub className="md:col-span-4 lg:col-span-3"
               totalCollectedStars={totalCollectedStars} 
               totalStars={totalStars} 
               games={GAMES}
@@ -236,7 +236,7 @@ export default function Home() {
             />
             
             {/* Main Content Area */}
-            <div className="md:col-span-9 space-y-6">
+            <div className="md:col-span-8 lg:col-span-9 space-y-6">
               {/* Games Section */}
               {currentTab === 'levels' && <GameGrid games={GAMES} />}
               

@@ -18,8 +18,8 @@ export const useIsMobile = () => {
         const mobileKeywords = ['android', 'iphone', 'ipad', 'ipod', 'windows phone', 'blackberry', 'nokia', 'mobile'];
         const isMobileDevice = mobileKeywords.some(keyword => userAgent.includes(keyword));
         
-        // Check screen width as an additional heuristic
-        const isSmallScreen = window.innerWidth < 768;
+        // Check screen width as an additional heuristic (include tablets/iPads)
+        const isSmallScreen = window.innerWidth < 1024;
         
         setIsMobile(isMobileDevice || isSmallScreen);
       }

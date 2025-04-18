@@ -25,12 +25,13 @@ const ArcadeFrame = ({ children }) => {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black via-purple-900/20 to-black p-1 sm:p-2">
+    <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black via-purple-900/20 to-black">
       <div 
-        className="w-full max-w-4xl h-[98vh] sm:h-auto flex flex-col"
+        className="w-full h-full flex flex-col"
         style={{
           boxShadow: `0 0 15px 2px ${neonColor}, 0 0 30px 5px ${neonColor}30`,
-          transition: 'box-shadow 1.5s ease'
+          transition: 'box-shadow 1.5s ease',
+          maxWidth: '100%' // Ensure it never goes beyond screen width
         }}
       >
         {/* Arcade Cabinet Top */}
@@ -61,7 +62,7 @@ const ArcadeFrame = ({ children }) => {
         <div className="arcade-screen scanline flex-grow border-x-4 sm:border-x-8 border-arcade-purple overflow-hidden bg-gradient-to-b from-black via-blue-900/10 to-black relative">
           {/* Screen glow effect */}
           <div className="absolute inset-0 opacity-30 bg-gradient-to-br from-blue-500/20 via-transparent to-purple-500/20 pointer-events-none"></div>
-          <div className="h-full overflow-hidden">
+          <div className="h-full overflow-auto">
             {children}
           </div>
         </div>

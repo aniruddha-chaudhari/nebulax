@@ -83,7 +83,6 @@ const GameBoard = () => {
       playCard();
     }
   };
-
   // Adding touch indicators for battlefield
   const battlefieldClasses = `game-battlefield min-h-[180px] sm:h-[210px] flex items-center justify-center
     ${(isDragOver || isTouchHover) && isPlayerTurn && !isGameOver ? 
@@ -138,10 +137,65 @@ const GameBoard = () => {
         </div>
       </div>
 
+      {/* iPad-specific layout: Move player stats above the game board */}
+      <div className="hidden md:block lg:hidden mb-3">
+        <div className="flex gap-3 w-full justify-between">
+          {/* Player Stats - Left side */}
+          <div className="w-1/2 bg-card/30 p-2 rounded-sm border border-border">
+            <h3 className="text-xs font-pixel text-white mb-1 text-center">Your Stats</h3>
+            {currentPlayer && (
+              <PlayerStats 
+                player={currentPlayer}
+                isOpponent={false}
+              />
+            )}
+            
+            {/* Player Notification Area */}
+            <AnimatePresence>
+              {isPlayerTurn && (
+                <motion.div 
+                  className="mt-2 bg-primary/20 border border-primary/30 rounded-sm p-1"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                >
+                  <p className="font-pixel text-xs text-white text-center">YOUR TURN</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          
+          {/* Opponent Stats - Right side */}
+          <div className="w-1/2 bg-card/30 p-2 rounded-sm border border-border">
+            <h3 className="text-xs font-pixel text-white mb-1 text-center">Opponent</h3>
+            {opponentPlayer && (
+              <PlayerStats 
+                player={opponentPlayer}
+                isOpponent={true}
+              />
+            )}
+            
+            {/* Opponent Notification Area */}
+            <AnimatePresence>
+              {!isPlayerTurn && !isGameOver && (
+                <motion.div 
+                  className="mt-2 bg-destructive/20 border border-destructive/30 rounded-sm p-1"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 5 }}
+                >
+                  <p className="font-pixel text-xs text-white text-center">AI TURN</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+
       {/* Game Layout - Responsive Layout (vertical on mobile, horizontal on larger screens) */}
       <div className="flex flex-col sm:flex-row items-stretch gap-3 p-2">
-        {/* Left - Current Player - Hidden on Mobile */}
-        <div className="hidden sm:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
+        {/* Left - Current Player - Hidden on Mobile and iPad */}
+        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
           <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Your Stats</h3>
           {currentPlayer && (
             <PlayerStats 
@@ -165,10 +219,10 @@ const GameBoard = () => {
           </AnimatePresence>
         </div>
         
-        {/* Center - Battlefield */}
-        <div className="w-full sm:w-1/2 sm:flex-grow">
+        {/* Center - Battlefield - Wider on iPad */}
+        <div className="w-full sm:w-1/2 md:w-full lg:w-1/2 sm:flex-grow">
           <div 
-            className={battlefieldClasses}
+            className={`${battlefieldClasses} md:h-[260px] md:min-h-[260px]`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -213,8 +267,8 @@ const GameBoard = () => {
           </div>
         </div>
         
-        {/* Right - Opponent - Hidden on Mobile */}
-        <div className="hidden sm:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
+        {/* Right - Opponent - Hidden on Mobile and iPad */}
+        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
           <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Opponent</h3>
           {opponentPlayer && (
             <PlayerStats 

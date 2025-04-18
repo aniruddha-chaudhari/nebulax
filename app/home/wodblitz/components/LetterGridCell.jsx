@@ -15,7 +15,7 @@ const LetterGridCell = ({
   onTouchMove,
   onTouchEnd
 }) => {
-  let cellClass = 'grid-cell font-pixel font-bold text-lg md:text-xl flex items-center justify-center';
+  let cellClass = 'grid-cell font-pixel font-bold text-lg md:text-2xl lg:text-xl flex items-center justify-center';
   
   // Apply states in order of priority
   if (isSelected) {

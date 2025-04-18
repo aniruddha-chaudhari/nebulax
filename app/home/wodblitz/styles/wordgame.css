@@ -11,7 +11,7 @@
   border: 2px solid #2c394b;
   color: #d4f1f9;
   font-family: 'VT323', monospace;
-  font-size: 1.75rem; /* Reduced font size */
+  font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
   user-select: none;
@@ -19,26 +19,53 @@
   text-shadow: 0 0 5px rgba(114, 224, 255, 0.8);
 }
 
+@media (min-width: 768px) {
+  .grid-cell {
+    font-size: 1.75rem;
+    border: 3px solid #2c394b;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cell {
+    font-size: 1.5rem;
+    border: 2px solid #2c394b;
+  }
+}
+
 .grid-cell:hover {
   background-color: rgba(42, 59, 79, 0.9);
-  transform: scale(1.05);
   box-shadow: 0 0 10px rgba(87, 202, 244, 0.5);
 }
 
-/* Add grid container style */
+/* Letter grid container */
 .letter-grid-container {
-  width: 95%;
-  max-width: 600px; /* Smaller max width */
+  width: 100%;
+  max-width: 500px;
   margin: 0 auto;
-  transform: scale(0.92); /* Slightly smaller scale */
-  transform-origin: center center;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .letter-grid-container {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .letter-grid-container {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 auto;
+  }
 }
 
 .grid-cell-selected {
   background-color: #e91e63;
   border-color: #ff9800;
   color: white;
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
   animation: pulse 1s infinite;
 }
@@ -59,7 +86,7 @@
   background-color: rgba(0, 0, 0, 0.7);
   border: 2px solid #6b46c1;
   border-radius: 4px;
-  padding: 10px; /* Reduced from 15px */
+  padding: 10px;
   box-shadow: 0 0 10px rgba(107, 70, 193, 0.5), 
               inset 0 0 15px rgba(107, 70, 193, 0.3);
 }
