@@ -49,6 +49,11 @@ export class MainScene extends Phaser.Scene {
   // Minimum distance between obstacles (in pixels)
   minObstacleDistance = 300;
   
+  // Add these properties to the class (before the constructor)
+  duckTimer = null;
+  minDuckDuration = 800; // Minimum duck duration in milliseconds
+  isDuckLocked = false; // Flag to track if ducking is locked for minimum duration
+  
   constructor() {
     super({ key: "MainScene" });
   }
@@ -249,34 +254,77 @@ export class MainScene extends Phaser.Scene {
     this.input.keyboard.on("keydown-DOWN", () => this.handleDuckDown(), this);
     this.input.keyboard.on("keyup-DOWN", () => this.handleDuckUp(), this);
     
-    // Touch controls - using a single pointer down handler with swipe detection
+    // Touch controls - improved to distinguish between tap and swipe
+    let startX = 0;
     let startY = 0;
+    let startTime = 0;
+    let hasMoved = false;
+    const TAP_THRESHOLD = 200; // milliseconds
+    const MOVE_THRESHOLD = 30; // pixels
     
     this.input.on("pointerdown", (pointer) => {
-      // Store start position for potential swipe detection
+      // Record start position and time
+      startX = pointer.x;
       startY = pointer.y;
+      startTime = Date.now();
+      hasMoved = false;
       
-      // Handle the tap for jumping or game start
-      if (!this.gameActive) {
+      // Don't trigger jump yet - wait to see if it's a tap or swipe
+      // Only handle immediate game start if not active
+      if (!this.gameActive && this.canRestart) {
         this.resetGame();
-      } else {
-        this.handleJump();
       }
     });
     
-    // Track touch/swipe for ducking
     this.input.on("pointermove", (pointer) => {
-      const swipeDistance = pointer.y - startY;
-      if (swipeDistance > 50 && this.gameActive) {  // Swipe down threshold
+      // Calculate distance moved
+      const distX = Math.abs(pointer.x - startX);
+      const distY = Math.abs(pointer.y - startY);
+      const swipeDownDistance = pointer.y - startY;
+      
+      // If moved significantly in any direction, mark as moved
+      if (distX > MOVE_THRESHOLD || distY > MOVE_THRESHOLD) {
+        hasMoved = true;
+      }
+      
+      // Handle swipe down for ducking, but only if not currently in a locked duck state
+      if (swipeDownDistance > 50 && this.gameActive && !this.player.isDucking && !this.isDuckLocked) {
         this.handleDuckDown();
-        // Store this as the new start so we don't trigger multiple times
+        
+        // Set duck as locked for minimum duration
+        this.isDuckLocked = true;
+        
+        // Clear any existing duck timer
+        if (this.duckTimer) {
+          this.duckTimer.remove();
+        }
+        
+        // Set timer for minimum duck duration
+        this.duckTimer = this.time.delayedCall(this.minDuckDuration, () => {
+          // After minimum duration, unlock ducking so player can stand up
+          this.isDuckLocked = false;
+          
+          // Only auto stand up if player is not actively holding the duck
+          if (!this.input.activePointer.isDown || this.input.activePointer.y - startY < 20) {
+            this.handleDuckUp();
+          }
+        });
+        
+        // Update startY to prevent multiple triggers
         startY = pointer.y;
       }
     });
-
+    
     this.input.on("pointerup", (pointer) => {
-      // End ducking when touch is released
-      if (this.gameActive && this.player.isDucking) {
+      const elapsedTime = Date.now() - startTime;
+      
+      // If it was a quick tap without much movement, trigger jump
+      if (!hasMoved && elapsedTime < TAP_THRESHOLD && this.gameActive) {
+        this.handleJump();
+      }
+      
+      // End ducking when touch is released, but only if not in locked state
+      if (this.gameActive && this.player.isDucking && !this.isDuckLocked) {
         this.handleDuckUp();
       }
     });

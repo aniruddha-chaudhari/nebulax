@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/app/hooks/use-mobile";
 import { initGame } from "../game/Game";
-import { ChevronUp, ChevronDown } from "lucide-react"; // Import icons for mobile controls
-import { motion } from "framer-motion";
 
 const GameContainer = ({ soundEnabled = true }) => {
   const gameContainerRef = useRef(null);
@@ -33,6 +31,36 @@ const GameContainer = ({ soundEnabled = true }) => {
       mainScene.handleDuckUp();
     }
   };
+  
+  useEffect(() => {
+    // Make sure we're running on the client-side
+    if (typeof window === 'undefined') return;
+    
+    // Add special CSS for landscape mode optimization on mobile
+    if (isMobile) {
+      const styleEl = document.createElement('style');
+      styleEl.innerHTML = `
+        @media (orientation: landscape) and (max-width: 1024px) {
+          .landscape-optimized {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: calc(100vh - 80px) !important;
+            border-radius: 4px !important;
+            margin: 0 auto !important;
+          }
+          
+          canvas {
+            border-radius: 4px !important;
+          }
+        }
+      `;
+      document.head.appendChild(styleEl);
+      
+      return () => {
+        document.head.removeChild(styleEl);
+      };
+    }
+  }, [isMobile]);
   
   useEffect(() => {
     // Make sure we're running on the client-side
@@ -80,9 +108,30 @@ const GameContainer = ({ soundEnabled = true }) => {
         console.error("Error updating sound settings:", err);
       }
     }
+
+    // Handle device orientation changes for mobile
+    const handleOrientationChange = () => {
+      if (gameInitialized.current && window.game) {
+        try {
+          // Resize the game when orientation changes
+          const width = gameContainerRef.current.offsetWidth;
+          const height = gameContainerRef.current.offsetHeight;
+          window.game.scale.resize(width, height);
+          console.log(`Game resized to ${width}x${height}`);
+        } catch (err) {
+          console.error("Error handling orientation change:", err);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleOrientationChange);
+    window.addEventListener('orientationchange', handleOrientationChange);
     
     // Cleanup function
     return () => {
+      window.removeEventListener('resize', handleOrientationChange);
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      
       if (gameInitialized.current && typeof window !== 'undefined') {
         try {
           // Destroy game instance when component unmounts
@@ -104,7 +153,7 @@ const GameContainer = ({ soundEnabled = true }) => {
   if (error) {
     return (
       <div 
-        className="w-full max-w-4xl h-[420px] md:h-[560px] bg-game-dark border-4 border-red-500 rounded-md overflow-hidden mx-auto flex items-center justify-center"
+        className="w-full max-w-6xl h-[420px] md:h-[600px] lg:h-[650px] bg-game-dark border-4 border-red-500 rounded-md overflow-hidden mx-auto flex items-center justify-center"
         data-testid="skate-game-error"
       >
         <div className="text-red-500 font-pixel text-center p-4">
@@ -120,38 +169,10 @@ const GameContainer = ({ soundEnabled = true }) => {
     <div className="game-wrapper relative">
       <div 
         ref={gameContainerRef} 
-        className="w-full max-w-4xl h-[420px] md:h-[560px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto"
+        className={`w-full max-w-6xl h-[420px] md:h-[600px] lg:h-[650px] bg-game-dark border-4 border-game-blue rounded-md overflow-hidden mx-auto ${isMobile ? 'landscape-optimized' : ''}`}
         data-testid="skate-game-container"
         data-sound-enabled={soundEnabled.toString()}
       />
-      
-      {/* Mobile controls - only shown on mobile devices */}
-      {isMobile && (
-        <div className="mobile-controls fixed bottom-4 left-0 right-0 z-10 flex justify-center items-center pointer-events-none px-4">
-          <div className="flex w-full justify-between max-w-[320px]">
-            {/* Jump button */}
-            <motion.button
-              className="w-20 h-20 bg-game-accent/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg pointer-events-auto border-4 border-white/20"
-              whileTap={{ scale: 0.9 }}
-              onTouchStart={handleJumpClick}
-              aria-label="Jump"
-            >
-              <ChevronUp size={32} className="text-white" />
-            </motion.button>
-            
-            {/* Duck button */}
-            <motion.button
-              className="w-20 h-20 bg-game-primary/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg pointer-events-auto border-4 border-white/20"
-              whileTap={{ scale: 0.9 }}
-              onTouchStart={handleDuckDown}
-              onTouchEnd={handleDuckUp}
-              aria-label="Duck"
-            >
-              <ChevronDown size={32} className="text-white" />
-            </motion.button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
