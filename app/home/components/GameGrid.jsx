@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-import LevelCard from '@/app/components/LevelCard';
+import LevelCard from '@/app/home/components/LevelCard';
 import PixelButton from '@/app/components/PixelButton';
 
 const GameGrid = ({ games }) => {
@@ -28,7 +28,8 @@ const GameGrid = ({ games }) => {
           </PixelButton>
         </motion.div>
       </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">        {games.map((game, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">       
+          {games.map((game, index) => (
           <motion.div
             key={game.id}
             className="relative flex md:block justify-center"
@@ -44,6 +45,7 @@ const GameGrid = ({ games }) => {
               totalStars={game.totalStars}
               imageUrl={game.imageUrl}
               isUnlocked={game.isUnlocked}
+              path={game.path}
             />
             <div className="absolute top-2 right-2 bg-black/70 text-xs px-2 py-1 rounded-md text-white font-pixel">
               {game.category}

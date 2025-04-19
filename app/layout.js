@@ -1,4 +1,4 @@
-import { AudioProvider } from './context/AudioContext'; // Import the AudioProvider
+import { AudioProvider } from './contexts/AudioContext'; // Import the AudioProvider
 import { Press_Start_2P, VT323 } from "next/font/google";
 import "./globals.css";
 
@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${pressStart2P.variable} ${vt323.variable} antialiased`}>
-        <AudioProvider> {/* Wrap children with AudioProvider */}
+        <AudioProvider> 
           {children}
         </AudioProvider>
       </body>

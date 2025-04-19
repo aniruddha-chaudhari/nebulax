@@ -5,17 +5,14 @@ import { useState, useCallback } from 'react';
 export const useToast = () => {
   const [toasts, setToasts] = useState([]);
 
-  // Add a new toast
   const toast = useCallback(({ title, description, variant = 'default', duration = 3000 }) => {
     const id = Math.random().toString(36).substring(2, 9);
     
-    // Add toast to state
     setToasts(prevToasts => [
       ...prevToasts, 
       { id, title, description, variant, duration }
     ]);
     
-    // Remove toast after duration
     setTimeout(() => {
       setToasts(prevToasts => prevToasts.filter(t => t.id !== id));
     }, duration);
@@ -23,7 +20,6 @@ export const useToast = () => {
     return id;
   }, []);
 
-  // Component that renders all active toasts
   const ToastContainer = () => (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
       {toasts.map(({ id, title, description, variant }) => (

@@ -448,7 +448,7 @@ export default function Index() {
           style={{ y: nebulaY, scale: nebulaScale, opacity: nebulaOpacity }}
         >
           <Image 
-            src="/nebula.png" 
+            src="/assets/nebula.png" 
             alt="Nebula" 
             width={500}
             height={500}
@@ -468,7 +468,7 @@ export default function Index() {
               style={{ y: planetsY, scale: planetsScale }}
             >
               <Image 
-                src="/planets.png" 
+                src="/assets/planets.png" 
                 alt="Planets" 
                 width={500} 
                 height={500}
@@ -489,10 +489,8 @@ export default function Index() {
         className="flex flex-col gap-3 items-center max-w-xs w-full px-4 mb-8 relative"
         variants={itemVariants}
       >
-        {/* Small asteroid near action buttons on mobile only */}
         <AsteroidImage className="block md:hidden absolute -left-12 top-1/2 z-10 opacity-40 scale-50" />
         
-        {/* This button takes user to the home page, not directly to games */}
         <Link href="/home" className="w-full">
           <motion.div
             whileHover={{ scale: 1.05 }}

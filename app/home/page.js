@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import PixelButton from '@/app/components/PixelButton';
 
-// Import modular components
 import {
   Starfield,
   ScanLines,
@@ -23,7 +22,6 @@ import {
   TickerBar
 } from './components';
 
-// Game data
 const GAMES = [
   {
     id: 1,
@@ -34,20 +32,22 @@ const GAMES = [
     imageUrl: "/battledeck/battldeck.jpeg",
     category: "Strategy",
     isUnlocked: true,
-    mapX: 30, // Added map coordinates
-    mapY: 25
+    mapX: 30,
+    mapY: 25,
+    path: "/home/games/battledeck"
   },
   {
     id: 2,
     name: "WodBlitz",
     description: "Race against the clock to form words in this electrifying puzzle blitz.",
-    category: "Word Puzzle", // Updated category to be more specific
+    category: "Word Puzzle",
     isUnlocked: true,
     starsCollected: 1,
     totalStars: 3,
     imageUrl: "/wodblitz/wodblitz.jpeg",
     mapX: 65,
-    mapY: 40
+    mapY: 40,
+    path: "/home/games/wodblitz"
   },
   {
     id: 3,
@@ -59,8 +59,10 @@ const GAMES = [
     totalStars: 3,
     imageUrl: "/skatedash/skatedash.jpeg",
     mapX: 50,
-    mapY: 70
-  },  {
+    mapY: 70,
+    path: "/home/games/skateparkdash"
+  },  
+  {
     id: 4,
     name: "Quizzy",
     description: "Test your knowledge with this retro arcade quiz game. Collect points and compete for high scores.",
@@ -70,8 +72,10 @@ const GAMES = [
     totalStars: 3,
     imageUrl: "/quizzy/quizzy.jpeg",
     mapX: 20,
-    mapY: 60
-  }, {
+    mapY: 60,
+    path: "/home/games/quizzy"
+  }, 
+  {
     id: 5,
     name: "Nebula Odyssey",
     description: "Embark on an epic journey through the cosmos. Discover alien civilizations and navigate celestial challenges.",
@@ -81,8 +85,10 @@ const GAMES = [
     totalStars: 3,
     imageUrl: "/nebula.png",
     mapX: 80,
-    mapY: 15
-  }, {
+    mapY: 15,
+    path: "/home"
+  }, 
+  {
     id: 6,
     name: "Cosmic Conquest",
     description: "Command a fleet of starships in an interstellar battle for dominance. Strategic space warfare at its finest.",
@@ -92,7 +98,8 @@ const GAMES = [
     totalStars: 4,
     imageUrl: "/spaceconquest.jpeg",
     mapX: 15,
-    mapY: 10
+    mapY: 10,
+    path: "/level/6"
   }
 ];
 
@@ -105,8 +112,6 @@ const ONLINE_FRIENDS = [
   { id: 6, name: "CyberCat", avatar: "/home/avatar6.jpg", status: "Idle" },
 ];
 
-
-// Achievements data
 const ACHIEVEMENTS = [
   { id: 1, name: "First Victory", description: "Win your first game", icon: "🏆", completed: true },
   { id: 2, name: "Card Collector", description: "Collect 10 cards in Battle Deck", icon: "🃏", completed: true },
@@ -114,17 +119,16 @@ const ACHIEVEMENTS = [
   { id: 4, name: "Speed Runner", description: "Win a match in under 2 minutes", icon: "⏱️", completed: false },
   { id: 5, name: "Combo Master", description: "Use a 5-card combo in a single match", icon: "🧠", completed: false },
 ];
+
 export default function Home() {
   const [currentTab, setCurrentTab] = useState('levels');
   const [selectedGame, setSelectedGame] = useState(null);
   const [tickerIndex, setTickerIndex] = useState(0);
-  const [windowWidth, setWindowWidth] = useState(1000); // Default width for SSR
+  const [windowWidth, setWindowWidth] = useState(1000);
   
-  // Total collected stars across all games
   const totalCollectedStars = GAMES.reduce((acc, game) => acc + game.starsCollected, 0);
   const totalStars = GAMES.reduce((acc, game) => acc + game.totalStars, 0);
   
-  // Set window width after component mounts (client-side only)
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     
@@ -136,7 +140,6 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // Effect for rotating ticker content
   useEffect(() => {
     const interval = setInterval(() => {
       setTickerIndex((prev) => (prev + 1) % ONLINE_FRIENDS.length);
@@ -145,39 +148,15 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
   
-  // Handler for selecting a game from the map
   const router = useRouter();
   
   const handleSelectGame = (game) => {
     setSelectedGame(game);
     
-    // Only navigate if the game is unlocked
     if (!game.isUnlocked) return;
     
-    // Determine game path based on name
-    let gamePath = `/level/${game.id}`;
-    
-    // Convert to lowercase for case-insensitive comparison
-    const gameName = game.name.trim().toLowerCase();
-    
-    if (gameName === "battle deck" || gameName === "battledeck") {
-      gamePath = "/home/battledeck";
-    } 
-    else if (gameName === "wodblitz" || gameName === "wod blitz") {
-      gamePath = "/home/wodblitz";
-    }
-    else if (gameName === "skate dash" || gameName === "skatedash") {
-      gamePath = "/home/skateparkdash";
-    }
-    else if (gameName === "quizzy" || gameName === "quiz arcade" || gameName === "quizgame" || gameName === "quiz game") {
-      gamePath = "/home/quizzy";
-    }
-    else if (gameName.includes("nebula")) {
-      gamePath = "/home";
-    }
-    
-    console.log(`Navigating to ${gamePath} for game: ${game.name}`);
-    router.push(gamePath);
+    console.log(`Navigating to ${game.path} for game: ${game.name}`);
+    router.push(game.path);
   };
   
   return (
@@ -187,12 +166,12 @@ export default function Home() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Background Effects */}
       <Starfield />
       <ScanLines />
       
       <div className="relative z-10">
-        <header className="p-4 flex justify-between items-center">          <Link href="/">
+        <header className="p-4 flex justify-between items-center">          
+          <Link href="/">
             <motion.div 
               className="flex items-center gap-2 text-white"
               whileHover={{ x: -4 }}
@@ -206,7 +185,7 @@ export default function Home() {
           <h1 className="font-pixel text-lg md:text-2xl text-white">NEBULAX<span className="hidden md:inline"> ARCADE</span></h1>
           
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
+            <div className="flex itemsCenter gap-1">
               <Coins size={16} className="text-yellow-400" />
               <span className="font-pixel text-white">1,250</span>
             </div>
@@ -221,12 +200,10 @@ export default function Home() {
           </div>
         </header>
         
-        {/* Marquee Announcement */}
         <Marquee text="WELCOME TO NEBULAX ARCADE - EXPLORE GAMES AND COLLECT STARS" />
         
         <main className="px-4 pb-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Sidebar - Player Info */}
             <PlayerHub className="md:col-span-4 lg:col-span-3"
               totalCollectedStars={totalCollectedStars} 
               totalStars={totalStars} 
@@ -235,12 +212,9 @@ export default function Home() {
               achievements={ACHIEVEMENTS}
             />
             
-            {/* Main Content Area */}
             <div className="md:col-span-8 lg:col-span-9 space-y-6">
-              {/* Games Section */}
               {currentTab === 'levels' && <GameGrid games={GAMES} />}
               
-              {/* Interactive Map Section */}
               <motion.div 
                 className="pixel-container bg-gray-400/10"
                 initial={{ y: 20, opacity: 0 }}
@@ -274,7 +248,6 @@ export default function Home() {
           </div>
         </main>
         
-        {/* Ticker at bottom */}
         <TickerBar onlineFriends={ONLINE_FRIENDS} windowWidth={windowWidth} />
       </div>
     </motion.div>
