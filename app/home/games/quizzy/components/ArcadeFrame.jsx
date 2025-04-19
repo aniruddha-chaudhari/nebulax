@@ -2,26 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 
+// Move colors array outside component to avoid recreation on each render
+const neonColors = [
+  'rgb(255, 0, 128)',
+  'rgb(0, 255, 255)',
+  'rgb(255, 128, 0)',
+  'rgb(128, 0, 255)',
+  'rgb(0, 255, 128)'
+];
+
 const ArcadeFrame = ({ children }) => {
-  const [neonColor, setNeonColor] = useState('rgb(255, 0, 128)');
+  const [neonColor, setNeonColor] = useState(neonColors[0]);
   
   useEffect(() => {
-    const colors = [
-      'rgb(255, 0, 128)',
-      'rgb(0, 255, 255)',
-      'rgb(255, 128, 0)',
-      'rgb(128, 0, 255)',
-      'rgb(0, 255, 128)'
-    ];
-    
     let colorIndex = 0;
     const interval = setInterval(() => {
-      colorIndex = (colorIndex + 1) % colors.length;
-      setNeonColor(colors[colorIndex]);
+      colorIndex = (colorIndex + 1) % neonColors.length;
+      setNeonColor(neonColors[colorIndex]);
     }, 3000);
     
     return () => clearInterval(interval);
   }, []);
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-black via-purple-900/20 to-black">

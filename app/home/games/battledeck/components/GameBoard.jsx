@@ -1,11 +1,51 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useGame } from '@/app/contexts/GameContext';
 import PlayerStats from './PlayerStats';
 import LastPlayedCard from './LastPlayedCard';
 import { Sword, Clock, CheckCircle, XCircle, PlusCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Extracted components for better organization
+const PlayerStatsCard = ({ player, isOpponent, compactView = false, isPlayerTurn, isGameOver }) => {
+  const title = isOpponent ? "Opponent" : "Your Stats";
+  const turnClass = isOpponent 
+    ? "bg-destructive/20 border-destructive/30" 
+    : "bg-primary/20 border-primary/30";
+  const turnText = isOpponent ? "AI TURN" : "YOUR TURN";
+  const showTurn = isOpponent ? !isPlayerTurn && !isGameOver : isPlayerTurn;
+  
+  return (
+    <div className={`w-full bg-card/30 p-2 rounded-sm border border-border ${compactView ? "" : ""}`}>
+      <h3 className={`font-pixel text-white mb-1 text-center ${compactView ? "text-[10px]" : "text-xs"}`}>
+        {title}
+      </h3>
+      {player && (
+        <PlayerStats 
+          player={player}
+          isOpponent={isOpponent}
+          compactView={compactView}
+        />
+      )}
+      
+      <AnimatePresence>
+        {showTurn && (
+          <motion.div 
+            className={`mt-2 ${turnClass} rounded-sm p-1 border`}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 5 }}
+          >
+            <p className={`font-pixel text-white text-center ${compactView ? "text-[8px]" : "text-xs"}`}>
+              {turnText}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const GameBoard = () => {
   const { 
@@ -22,23 +62,48 @@ const GameBoard = () => {
 
   const [isDragOver, setIsDragOver] = useState(false);
   const [isTouchHover, setIsTouchHover] = useState(false);
-  const isGameOver = gamePhase === 'gameOver';
-  const winner = gameState.winner === currentPlayer?.id ? 'You Won!' : 'AI Won!';
-  const isPlayerTurn = gamePhase === 'playerTurn';
+  
+  // Memoized values to prevent recalculations
+  const isGameOver = useMemo(() => gamePhase === 'gameOver', [gamePhase]);
+  const isPlayerTurn = useMemo(() => gamePhase === 'playerTurn', [gamePhase]);
+  const winner = useMemo(() => 
+    gameState.winner === currentPlayer?.id ? 'You Won!' : 'AI Won!', 
+    [gameState.winner, currentPlayer?.id]
+  );
 
-  // Handle mouse drag events
-  const handleDragOver = (e) => {
+  // Battlefield style classes
+  const battlefieldClasses = useMemo(() => `
+    game-battlefield min-h-[180px] sm:h-[210px] flex items-center justify-center
+    ${(isDragOver || isTouchHover) && isPlayerTurn && !isGameOver ? 
+      'bg-primary/20 border-primary' : 
+      'bg-card/20 border-border/50'
+    } 
+    ${isPlayerTurn && !isGameOver ? 'cursor-pointer' : ''}
+    transition-colors rounded-sm border md:h-[260px] md:min-h-[260px]
+  `, [isDragOver, isTouchHover, isPlayerTurn, isGameOver]);
+
+  // Optimized handlers with useCallback
+  const handleDragOver = useCallback((e) => {
     e.preventDefault();
     if (isPlayerTurn && !isGameOver) {
       setIsDragOver(true);
     }
-  };
+  }, [isPlayerTurn, isGameOver]);
 
-  const handleDragLeave = () => {
+  const handleDragLeave = useCallback(() => {
     setIsDragOver(false);
-  };
+  }, []);
 
-  const handleDrop = (e) => {
+  const handleCardPlay = useCallback((cardId) => {
+    const cardIndex = playerHand.findIndex(card => card.id === cardId);
+    
+    if (cardIndex !== -1 && canPlayCard(cardIndex)) {
+      selectCard(cardIndex);
+      playCard();
+    }
+  }, [playerHand, canPlayCard, selectCard, playCard]);
+
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
     setIsDragOver(false);
     
@@ -48,20 +113,19 @@ const GameBoard = () => {
     if (cardId) {
       handleCardPlay(cardId);
     }
-  };
+  }, [isPlayerTurn, isGameOver, handleCardPlay]);
 
-  // Handle touch events for mobile
-  const handleTouchEnter = () => {
+  const handleTouchEnter = useCallback(() => {
     if (isPlayerTurn && !isGameOver) {
       setIsTouchHover(true);
     }
-  };
+  }, [isPlayerTurn, isGameOver]);
 
-  const handleTouchLeave = () => {
+  const handleTouchLeave = useCallback(() => {
     setIsTouchHover(false);
-  };
+  }, []);
 
-  const handleTouchEnd = (e) => {
+  const handleTouchEnd = useCallback((e) => {
     setIsTouchHover(false);
     
     if (!isPlayerTurn || isGameOver) return;
@@ -71,156 +135,120 @@ const GameBoard = () => {
       handleCardPlay(cardId);
       window.touchDraggedCardId = null;
     }
-  };
+  }, [isPlayerTurn, isGameOver, handleCardPlay]);
 
-  const handleCardPlay = (cardId) => {
-    const cardIndex = playerHand.findIndex(card => card.id === cardId);
-    
-    if (cardIndex !== -1 && canPlayCard(cardIndex)) {
-      selectCard(cardIndex);
-      playCard();
+  // Battlefield content based on game state
+  const renderBattlefieldContent = () => {
+    if (isGameOver) {
+      return (
+        <div className="game-over-message text-center p-4">
+          <h2 className="font-pixel text-xl mb-2 text-accent animate-pulse">Game Over</h2>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sword size={20} className="text-primary" />
+            <p className="font-vt323 text-lg text-white">{winner}</p>
+          </div>
+          <button 
+            className="btn-pixel mt-2 hover:scale-105 transition-transform"
+            onClick={() => window.location.reload()}
+          >
+            Play Again
+          </button>
+        </div>
+      );
     }
+    
+    if (lastPlayedCard && typeof lastPlayedCard === 'object' && lastPlayedCard.id) {
+      return <LastPlayedCard card={lastPlayedCard} />;
+    }
+    
+    return (
+      <div className="battlefield-message font-vt323 text-center p-2">
+        <p className="text-white text-base">
+          {isPlayerTurn ? (
+            isDragOver || isTouchHover
+              ? "Drop card here to play it!" 
+              : "Your turn! Play a card or end your turn."
+          ) : (
+            "AI is thinking..."
+          )}
+        </p>
+        {isPlayerTurn && !isGameOver && (
+          <p className="text-xs text-primary/80 mt-1">
+            Drag or tap cards to play
+          </p>
+        )}
+      </div>
+    );
   };
-
-  const battlefieldClasses = `game-battlefield min-h-[180px] sm:h-[210px] flex items-center justify-center
-    ${(isDragOver || isTouchHover) && isPlayerTurn && !isGameOver ? 
-      'bg-primary/20 border-primary' : 
-      'bg-card/20 border-border/50'
-    } 
-    ${isPlayerTurn && !isGameOver ? 'cursor-pointer' : ''}
-    transition-colors rounded-sm border`;
 
   return (
     <div className="game-board bg-muted p-3 rounded-sm pixel-border mb-6 relative">
-      {/* Combined Stats Box for Mobile Only */}
+      {/* Mobile Stats Box */}
       <div className="sm:hidden mb-3">
         <div className="bg-card/30 p-2 rounded-sm border border-border">
           <div className="grid grid-cols-2 gap-2">
-            {/* Left side - Player Stats */}
             <div className="border-r border-border pr-2">
-              <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Your Stats</h3>
-              {currentPlayer && (
-                <PlayerStats 
-                  player={currentPlayer}
-                  isOpponent={false}
-                  compactView={true}
-                />
-              )}
-              {/* Player Turn Indicator */}
-              {isPlayerTurn && (
-                <div className="mt-1 bg-primary/20 border border-primary/30 rounded-sm p-1">
-                  <p className="font-pixel text-[8px] text-white text-center">YOUR TURN</p>
-                </div>
-              )}
-            </div>
-            
-            {/* Right side - Opponent Stats */}
-            <div className="pl-2">
-              <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Opponent</h3>
-              {opponentPlayer && (
-                <PlayerStats 
-                  player={opponentPlayer}
-                  isOpponent={true}
-                  compactView={true}
-                />
-              )}
-              {/* AI Turn Indicator */}
-              {!isPlayerTurn && !isGameOver && (
-                <div className="mt-1 bg-destructive/20 border border-destructive/30 rounded-sm p-1">
-                  <p className="font-pixel text-[8px] text-white text-center">AI TURN</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* iPad-specific layout: Move player stats above the game board */}
-      <div className="hidden md:block lg:hidden mb-3">
-        <div className="flex gap-3 w-full justify-between">
-          {/* Player Stats - Left side */}
-          <div className="w-1/2 bg-card/30 p-2 rounded-sm border border-border">
-            <h3 className="text-xs font-pixel text-white mb-1 text-center">Your Stats</h3>
-            {currentPlayer && (
-              <PlayerStats 
+              <PlayerStatsCard 
                 player={currentPlayer}
                 isOpponent={false}
+                compactView={true}
+                isPlayerTurn={isPlayerTurn}
+                isGameOver={isGameOver}
               />
-            )}
+            </div>
             
-            {/* Player Notification Area */}
-            <AnimatePresence>
-              {isPlayerTurn && (
-                <motion.div 
-                  className="mt-2 bg-primary/20 border border-primary/30 rounded-sm p-1"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 5 }}
-                >
-                  <p className="font-pixel text-xs text-white text-center">YOUR TURN</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          
-          {/* Opponent Stats - Right side */}
-          <div className="w-1/2 bg-card/30 p-2 rounded-sm border border-border">
-            <h3 className="text-xs font-pixel text-white mb-1 text-center">Opponent</h3>
-            {opponentPlayer && (
-              <PlayerStats 
+            <div className="pl-2">
+              <PlayerStatsCard 
                 player={opponentPlayer}
                 isOpponent={true}
+                compactView={true}
+                isPlayerTurn={isPlayerTurn}
+                isGameOver={isGameOver}
               />
-            )}
-            
-            {/* Opponent Notification Area */}
-            <AnimatePresence>
-              {!isPlayerTurn && !isGameOver && (
-                <motion.div 
-                  className="mt-2 bg-destructive/20 border border-destructive/30 rounded-sm p-1"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 5 }}
-                >
-                  <p className="font-pixel text-xs text-white text-center">AI TURN</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Game Layout - Responsive Layout (vertical on mobile, horizontal on larger screens) */}
-      <div className="flex flex-col sm:flex-row items-stretch gap-3 p-2">
-        {/* Left - Current Player - Hidden on Mobile and iPad */}
-        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
-          <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Your Stats</h3>
-          {currentPlayer && (
-            <PlayerStats 
+      {/* iPad-specific layout */}
+      <div className="hidden md:block lg:hidden mb-3">
+        <div className="flex gap-3 w-full justify-between">
+          <div className="w-1/2">
+            <PlayerStatsCard 
               player={currentPlayer}
               isOpponent={false}
+              isPlayerTurn={isPlayerTurn}
+              isGameOver={isGameOver}
             />
-          )}
+          </div>
           
-          {/* Player Notification Area */}
-          <AnimatePresence>
-            {isPlayerTurn && (
-              <motion.div 
-                className="mt-2 bg-primary/20 border border-primary/30 rounded-sm p-1"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-              >
-                <p className="font-pixel text-[8px] text-white text-center">YOUR TURN</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="w-1/2">
+            <PlayerStatsCard 
+              player={opponentPlayer}
+              isOpponent={true}
+              isPlayerTurn={isPlayerTurn}
+              isGameOver={isGameOver}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Game Layout */}
+      <div className="flex flex-col sm:flex-row items-stretch gap-3 p-2">
+        {/* Left - Current Player - Hidden on Mobile and iPad */}
+        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4">
+          <PlayerStatsCard 
+            player={currentPlayer}
+            isOpponent={false}
+            isPlayerTurn={isPlayerTurn}
+            isGameOver={isGameOver}
+          />
         </div>
         
         {/* Center - Battlefield - Wider on iPad */}
         <div className="w-full sm:w-1/2 md:w-full lg:w-1/2 sm:flex-grow">
           <div 
-            className={`${battlefieldClasses} md:h-[260px] md:min-h-[260px]`}
+            className={battlefieldClasses}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -228,66 +256,18 @@ const GameBoard = () => {
             onTouchMove={handleTouchEnter}
             onTouchEnd={handleTouchEnd}
           >
-            {isGameOver ? (
-              <div className="game-over-message text-center p-4">
-                <h2 className="font-pixel text-xl mb-2 text-accent animate-pulse">Game Over</h2>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Sword size={20} className="text-primary" />
-                  <p className="font-vt323 text-lg text-white">{winner}</p>
-                </div>
-                <button 
-                  className="btn-pixel mt-2 hover:scale-105 transition-transform"
-                  onClick={() => window.location.reload()}
-                >
-                  Play Again
-                </button>
-              </div>
-            ) : lastPlayedCard && typeof lastPlayedCard === 'object' && lastPlayedCard.id ? (
-              <LastPlayedCard card={lastPlayedCard} />
-            ) : (
-              <div className="battlefield-message font-vt323 text-center p-2">
-                <p className="text-white text-base">
-                  {isPlayerTurn ? (
-                    isDragOver || isTouchHover
-                      ? "Drop card here to play it!" 
-                      : "Your turn! Play a card or end your turn."
-                  ) : (
-                    "AI is thinking..."
-                  )}
-                </p>
-                {isPlayerTurn && !isGameOver && (
-                  <p className="text-xs text-primary/80 mt-1">
-                    Drag or tap cards to play
-                  </p>
-                )}
-              </div>
-            )}
+            {renderBattlefieldContent()}
           </div>
         </div>
         
         {/* Right - Opponent - Hidden on Mobile and iPad */}
-        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4 bg-card/30 p-2 rounded-sm border border-border">
-          <h3 className="text-[10px] font-pixel text-white mb-1 text-center">Opponent</h3>
-          {opponentPlayer && (
-            <PlayerStats 
-              player={opponentPlayer}
-              isOpponent={true}
-            />
-          )}
-          
-          {/* Opponent Notification Area */}
-          <AnimatePresence>
-            {!isPlayerTurn && !isGameOver && (
-              <motion.div 
-                className="mt-2 bg-destructive/20 border border-destructive/30 rounded-sm p-1"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-              >
-                <p className="font-pixel text-[8px] text-white text-center">AI TURN</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="hidden sm:block md:hidden lg:block w-full sm:w-1/4">
+          <PlayerStatsCard 
+            player={opponentPlayer}
+            isOpponent={true}
+            isPlayerTurn={isPlayerTurn}
+            isGameOver={isGameOver}
+          />
         </div>
       </div>
     </div>

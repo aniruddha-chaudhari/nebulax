@@ -1,7 +1,5 @@
 'use client';
 
-// This is the landing/index page that users see first
-// Navigation flow: Landing page -> Home page -> Games
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -26,64 +24,6 @@ import {
 
 } from '@/app/components/index/SpaceImages';
 
-// New custom components for creative space elements
-
-// Animated Asteroid Belt component
-const AsteroidBelt = ({ centerX, centerY, radius, count = 8, className = "" }) => {
-  return (
-    <div className={`absolute ${className}`} style={{ top: centerY, left: centerX }}>
-      {[...Array(count)].map((_, i) => {
-        const angle = (i * 360) / count;
-        const x = radius * Math.cos((angle * Math.PI) / 180);
-        const y = radius * Math.sin((angle * Math.PI) / 180);
-        
-        // Alternate between asteroid types
-        const AsteroidComponent = i % 3 === 0 ? AsteroidImage : 
-                                i % 3 === 1 ? Asteroid2Image : Asteroid3Image;
-        
-        return (
-          <motion.div 
-            key={i}
-            className="absolute"
-            style={{ 
-              x, 
-              y,
-              scale: 0.4 + (i % 3) * 0.2, // Varied sizes
-              opacity: 0.6 + (i % 4) * 0.1, // Varied opacity
-              transformOrigin: 'center'
-            }}
-            animate={{ 
-              rotate: [0, 360], // Rotate around its own axis
-              x: [x, x + 10, x - 5, x], // Small x wobble
-              y: [y, y - 5, y + 8, y], // Small y wobble
-            }}
-            transition={{ 
-              rotate: { duration: 20 + i * 2, repeat: Infinity, ease: "linear" },
-              x: { duration: 5 + i, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 7 + i, repeat: Infinity, ease: "easeInOut" }
-            }}
-          >
-            <AsteroidComponent className="w-auto h-auto" />
-          </motion.div>
-        );
-      })}
-      
-      {/* Center planet */}
-      <motion.div 
-        className="absolute"
-        style={{ 
-          left: -24,
-          top: -24,
-          zIndex: 5
-        }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-      >
-        <Saturn2Image />
-      </motion.div>
-    </div>
-  );
-};
 
 // Interactive Saturn with glowing rings on hover
 const InteractiveSaturn = ({ className = "" }) => {
