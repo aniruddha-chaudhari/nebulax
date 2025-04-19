@@ -512,7 +512,7 @@ export default function Index() {
                 transition={{ duration: 0.8, delay: 0.5 }}
               >
                 <Image 
-                  src="/planets.png" 
+                  src="/assets/planets.png" 
                   alt="Planets" 
                   width={60} 
                   height={60} 
