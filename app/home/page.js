@@ -83,7 +83,7 @@ const GAMES = [
     isUnlocked: false,
     starsCollected: 0,
     totalStars: 3,
-    imageUrl: "/nebula.png",
+    imageUrl: "/assets/nebula.png",
     mapX: 80,
     mapY: 15,
     path: "/home"
