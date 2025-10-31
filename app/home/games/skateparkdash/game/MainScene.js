@@ -1,17 +1,4 @@
-let Phaser;
-if (typeof window !== 'undefined') {
-  Phaser = require('phaser');
-} else {
-  Phaser = {
-    Scene: class Scene {
-      constructor() {}
-    },
-    Math: {
-      Between: () => 0,
-    },
-  };
-}
-
+import * as Phaser from 'phaser';
 import { Player } from "./Player";
 
 export class MainScene extends Phaser.Scene {
@@ -38,11 +25,13 @@ export class MainScene extends Phaser.Scene {
   
   constructor() {
     super({ key: "MainScene" });
+    console.log('[MainScene] Constructor called');
   }
   
   preload() {
+    console.log('[MainScene] preload() started');
     try {
-      console.log("Loading game textures...");
+      console.log("[MainScene] Loading game textures...");
       this.load.image('player', '/skatedash/normal.png');
       this.load.image('player-duck', '/skatedash/duck.png');
       this.load.image('player-jump', '/skatedash/jump.png');
@@ -51,28 +40,30 @@ export class MainScene extends Phaser.Scene {
       this.load.image('duckobstacle', '/skatedash/duckobstacle.png');
       this.createBackgroundSprites();
       this.texturesCreated = true;
-      console.log("Game textures loaded successfully");
+      console.log("[MainScene] Game textures loaded successfully");
     } catch (err) {
-      console.error("Error in preload:", err);
+      console.error("[MainScene] Error in preload:", err);
       this.texturesCreated = false;
     }
   }
   
   create() {
+    console.log('[MainScene] create() started');
     try {
       if (!this.texturesCreated) {
+        console.error('[MainScene] Textures were not created properly');
         this.addTextureErrorMessage();
         return;
       }
 
       if (this.registry.has('soundEnabled')) {
         this.soundEnabled = this.registry.get('soundEnabled');
-        console.log("Initial sound state:", this.soundEnabled);
+        console.log("[MainScene] Initial sound state:", this.soundEnabled);
       }
       
       this.registry.events.on('changedata', this.handleRegistryChange, this);
       
-      console.log("Creating game scene...");
+      console.log("[MainScene] Creating game scene...");
       this.createBackground();
       this.createGround();
       this.player = new Player(this, 100, this.scale.height - 80);
@@ -104,9 +95,9 @@ export class MainScene extends Phaser.Scene {
       ).setOrigin(0.5);
       this.setupInputHandlers();
       this.scale.on("resize", this.handleResize, this);
-      console.log("Game scene created successfully");
+      console.log("[MainScene] Game scene created successfully");
     } catch (err) {
-      console.error("Error in create:", err);
+      console.error("[MainScene] Error in create:", err);
       this.addErrorMessage(err.message);
     }
   }

@@ -1,7 +1,4 @@
-let Phaser;
-if (typeof window !== 'undefined') {
-  Phaser = require('phaser');
-}
+import * as Phaser from 'phaser';
 
 export class Player {
   constructor(scene, x, y) {

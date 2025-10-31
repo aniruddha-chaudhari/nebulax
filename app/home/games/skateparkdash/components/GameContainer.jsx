@@ -1,6 +1,7 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/app/hooks/use-mobile";
-import { initGame } from "../game/Game";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -10,6 +11,7 @@ const GameContainer = ({ soundEnabled = true }) => {
   const gameInitialized = useRef(false);
   const [error, setError] = useState(null);
   const [gameInstance, setGameInstance] = useState(null);
+  const [isLoadingPhaser, setIsLoadingPhaser] = useState(true);
   
   const handleJumpClick = () => {
     if (window.game && window.game.scene.scenes[0]) {
@@ -33,41 +35,142 @@ const GameContainer = ({ soundEnabled = true }) => {
   };
   
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    console.log('[GameContainer] useEffect triggered', {
+      hasWindow: typeof window !== 'undefined',
+      hasContainer: !!gameContainerRef.current,
+      isInitialized: gameInitialized.current,
+      isMobile
+    });
     
-    if (gameContainerRef.current && !gameInitialized.current) {
+    let mounted = true;
+    let loadTimeout;
+    
+    const loadAndInitGame = async () => {
+      if (typeof window === 'undefined') {
+        console.log('[GameContainer] Window is undefined, skipping');
+        return;
+      }
+      
+      if (!gameContainerRef.current) {
+        console.log('[GameContainer] Container ref not ready, waiting...');
+        // Retry after a short delay
+        setTimeout(() => {
+          if (mounted && gameContainerRef.current) {
+            console.log('[GameContainer] Container ref now available, retrying...');
+            loadAndInitGame();
+          } else {
+            console.error('[GameContainer] Container ref still not available after wait');
+            setError("Game container not found");
+            setIsLoadingPhaser(false);
+          }
+        }, 100);
+        return;
+      }
+      
+      if (gameInitialized.current) {
+        console.log('[GameContainer] Game already initialized, skipping');
+        return;
+      }
+      
+      // Safety timeout - if loading takes more than 10 seconds, show error
+      loadTimeout = setTimeout(() => {
+        if (mounted && isLoadingPhaser) {
+          console.error('[GameContainer] Loading timeout - taking too long');
+          setError("Game loading timeout. Please refresh the page.");
+          setIsLoadingPhaser(false);
+        }
+      }, 10000);
+      
       try {
-        const { offsetWidth, offsetHeight } = gameContainerRef.current;
-        if (offsetWidth === 0 || offsetHeight === 0) {
-          const dimensionCheckTimer = setTimeout(() => {
-            if (gameContainerRef.current?.offsetWidth > 0) {
-              const game = initGame(gameContainerRef.current, isMobile, soundEnabled);
-              setGameInstance(game);
-              gameInitialized.current = true;
-            } else {
-              setError("Could not initialize game: invalid container dimensions");
-            }
-          }, 300);
-          return () => clearTimeout(dimensionCheckTimer);
+        console.log('[GameContainer] Starting to load game modules...');
+        
+        // Dynamically import the game initialization
+        const { initGame } = await import('../game/Game');
+        console.log('[GameContainer] Game modules loaded successfully, initGame type:', typeof initGame);
+        
+        if (!mounted) {
+          console.log('[GameContainer] Component unmounted during load');
+          return;
         }
         
+        const { offsetWidth, offsetHeight } = gameContainerRef.current;
+        console.log('[GameContainer] Container dimensions:', { offsetWidth, offsetHeight });
+        
+        if (offsetWidth === 0 || offsetHeight === 0) {
+          console.log('[GameContainer] Invalid dimensions, retrying in 300ms...');
+          setTimeout(() => {
+            if (!mounted) {
+              console.log('[GameContainer] Component unmounted during dimension wait');
+              return;
+            }
+            
+            if (gameContainerRef.current?.offsetWidth > 0) {
+              const retryDims = gameContainerRef.current;
+              console.log('[GameContainer] Retry dimensions:', {
+                width: retryDims.offsetWidth,
+                height: retryDims.offsetHeight
+              });
+              console.log('[GameContainer] Initializing game after retry...');
+              
+              const game = initGame(retryDims, isMobile, soundEnabled);
+              console.log('[GameContainer] Game initialization result:', game ? 'SUCCESS' : 'NULL');
+              
+              if (game) {
+                setGameInstance(game);
+                gameInitialized.current = true;
+                setIsLoadingPhaser(false);
+                clearTimeout(loadTimeout);
+                console.log('[GameContainer] ✅ Game initialized successfully after retry');
+              } else {
+                setError("Game initialization returned null");
+                setIsLoadingPhaser(false);
+                clearTimeout(loadTimeout);
+              }
+            } else {
+              console.error('[GameContainer] Container still has invalid dimensions:', {
+                width: gameContainerRef.current?.offsetWidth,
+                height: gameContainerRef.current?.offsetHeight
+              });
+              setError("Could not initialize game: invalid container dimensions");
+              setIsLoadingPhaser(false);
+              clearTimeout(loadTimeout);
+            }
+          }, 300);
+          return;
+        }
+        
+        console.log('[GameContainer] Initializing game with valid dimensions...');
         const game = initGame(gameContainerRef.current, isMobile, soundEnabled);
-        setGameInstance(game);
-        gameInitialized.current = true;
+        console.log('[GameContainer] Game initialization result:', game ? 'SUCCESS' : 'NULL');
+        
+        if (mounted && game) {
+          setGameInstance(game);
+          gameInitialized.current = true;
+          setIsLoadingPhaser(false);
+          clearTimeout(loadTimeout);
+          console.log('[GameContainer] ✅ Game initialized successfully');
+        } else if (!game) {
+          console.error('[GameContainer] Game initialization returned null');
+          setError("Failed to initialize game");
+          setIsLoadingPhaser(false);
+          clearTimeout(loadTimeout);
+        }
       } catch (err) {
-        setError(`Could not initialize game: ${err.message}`);
+        console.error('[GameContainer] ❌ Error during initialization:', err);
+        console.error('[GameContainer] Error stack:', err.stack);
+        if (mounted) {
+          setError(`Could not initialize game: ${err.message}`);
+          setIsLoadingPhaser(false);
+          clearTimeout(loadTimeout);
+        }
       }
-    }
+    };
     
-    if (typeof window !== 'undefined' && window.game) {
-      try {
-        window.game.registry.set("soundEnabled", soundEnabled);
-      } catch (err) {
-        console.error("Error updating sound settings:", err);
-      }
-    }
+    loadAndInitGame();
     
     return () => {
+      mounted = false;
+      if (loadTimeout) clearTimeout(loadTimeout);
       if (gameInitialized.current && typeof window !== 'undefined') {
         try {
           if (window.game) {
@@ -81,7 +184,18 @@ const GameContainer = ({ soundEnabled = true }) => {
         }
       }
     };
-  }, [isMobile, soundEnabled]);
+  }, [isMobile]);
+  
+  // Handle sound updates separately
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.game && gameInitialized.current) {
+      try {
+        window.game.registry.set("soundEnabled", soundEnabled);
+      } catch (err) {
+        console.error("Error updating sound settings:", err);
+      }
+    }
+  }, [soundEnabled]);
   
   if (error) {
     return (
@@ -106,6 +220,15 @@ const GameContainer = ({ soundEnabled = true }) => {
         data-testid="skate-game-container"
         data-sound-enabled={soundEnabled.toString()}
       />
+      
+      {/* Loading overlay */}
+      {isLoadingPhaser && (
+        <div className="absolute inset-0 w-full max-w-4xl h-[420px] md:h-[560px] mx-auto bg-game-dark border-4 border-game-blue rounded-md overflow-hidden flex items-center justify-center z-50">
+          <div className="text-game-blue font-pixel text-center p-4">
+            <p className="text-lg mb-2 animate-pulse">Loading Game...</p>
+          </div>
+        </div>
+      )}
       
       {isMobile && (
         <div className="mobile-controls fixed bottom-4 left-0 right-0 z-10 flex justify-center items-center pointer-events-none px-4">
